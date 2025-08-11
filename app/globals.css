@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+/* Import modern fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* Custom color variables for Capture-Now */
+@theme {
+  /* Purple theme colors */
+  --color-purple: 139 92 246; /* #8b5cf6 - Main purple */
+  --color-purple-light: 167 139 250; /* #a78bfa - Light purple */
+  --color-purple-dark: 124 58 237; /* #7c3aed - Dark purple */
+  
+  /* Blue accent colors */
+  --color-blue: 59 130 246; /* #3b82f6 - Main blue */
+  --color-blue-light: 96 165 250; /* #60a5fa - Light blue */
+  --color-blue-dark: 37 99 235; /* #2563eb - Dark blue */
+  
+  /* Background colors */
+  --color-background: 10 10 15; /* #0a0a0f - Main background */
+  --color-surface: 21 21 32; /* #151520 - Surface/secondary background */
+  --color-surface-light: 30 30 46; /* #1e1e2e - Light surface */
+  --color-card: 36 36 56; /* #242438 - Card backgrounds */
+  --color-hover: 42 42 66; /* #2a2a42 - Hover states */
+  
+  /* Text colors */
+  --color-foreground: 248 250 252; /* #f8fafc - Primary text (white) */
+  --color-foreground-muted: 107 114 128; /* #6b7280 - Muted text */
+  --color-accent-text: 96 165 250; /* #60a5fa - Accent text (blue) */
+  
+  /* Border colors */
+  --color-border: 55 65 81; /* #374151 - Default border */
+  --color-border-focus: 139 92 246; /* #8b5cf6 - Focus border */
+  
+  /* State colors */
+  --color-success: 34 197 94; /* #22c55e - Success/green */
+  --color-warning: 245 158 11; /* #f59e0b - Warning/yellow */
+  --color-error: 239 68 68; /* #ef4444 - Error/red */
+  
+  /* Font families */
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-family-mono: 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+  
+  /* Custom shadows */
+  --shadow-purple-sm: 0 1px 2px rgb(139 92 246 / 0.1);
+  --shadow-purple-md: 0 4px 6px rgb(139 92 246 / 0.15);
+  --shadow-purple-lg: 0 10px 15px rgb(139 92 246 / 0.2);
+  --shadow-purple-xl: 0 20px 25px rgb(139 92 246 / 0.25);
+}
+
+/* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-purple-light));
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--color-surface));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-purple));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-purple-light));
+}
+
+/* Custom utilities */
+.text-gradient {
+  background: linear-gradient(135deg, rgb(var(--color-purple)) 0%, rgb(var(--color-blue)) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-gradient {
+  background: linear-gradient(135deg, rgb(var(--color-purple)) 0%, rgb(var(--color-blue)) 100%);
+}
+
+.glass-effect {
+  background: rgba(var(--color-card), 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--color-border), 0.3);
+}
+
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-purple-lg);
+  border-color: rgb(var(--color-border-focus));
+}
+
+/* Focus states */
+.focus-ring {
+  outline: 2px solid rgb(var(--color-purple));
+  outline-offset: 2px;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgb(var(--color-purple) / 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgb(var(--color-purple) / 0.8);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}

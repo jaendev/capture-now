@@ -1,0 +1,39 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Note background with gradient -->
+  <defs>
+    <linearGradient id="noteGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cornerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main note background -->
+  <rect width="64" height="64" fill="url(#noteGradient)" rx="8" />
+  
+  <!-- Folded corner -->
+  <polygon points="44,0 64,0 64,20" fill="url(#cornerGradient)" />
+  <polygon points="44,0 64,20 44,20" fill="#f8fafc" fill-opacity="0.3" />
+  
+  <!-- Pen/pencil icon -->
+  <g transform="translate(16, 20)">
+    <!-- Pen body -->
+    <rect x="8" y="16" width="20" height="6" fill="#f8fafc" rx="3" />
+    <!-- Pen tip -->
+    <polygon points="28,16 32,19 28,22" fill="#60a5fa" />
+    <!-- Pen back -->
+    <polygon points="8,16 4,19 8,22" fill="#3b82f6" />
+    <!-- Small highlight -->
+    <rect x="10" y="17" width="16" height="2" fill="#ffffff" fill-opacity="0.4" rx="1" />
+  </g>
+  
+  <!-- Small lines to represent text -->
+  <g fill="#f8fafc" fill-opacity="0.6">
+    <rect x="12" y="36" width="32" height="2" rx="1" />
+    <rect x="12" y="42" width="24" height="2" rx="1" />
+    <rect x="12" y="48" width="28" height="2" rx="1" />
+  </g>
+</svg>
