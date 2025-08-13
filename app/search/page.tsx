@@ -29,12 +29,12 @@ export default function SearchPage() {
     },
   ];
 
-  const filteredResults = searchQuery 
-    ? sampleResults.filter(result => 
-        result.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        result.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        result.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-      )
+  const filteredResults = searchQuery
+    ? sampleResults.filter(result =>
+      result.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      result.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      result.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
     : sampleResults;
 
   return (
@@ -63,21 +63,21 @@ export default function SearchPage() {
         <div className="space-y-4 md:space-y-6 px-4">
           {searchQuery && (
             <div className="text-sm text-muted">
-              Found {filteredResults.length} results for "{searchQuery}"
+              Found {filteredResults.length} results for &quot;{searchQuery}&quot;
             </div>
           )}
-          
+
           {filteredResults.map((result) => (
             <div key={result.id} className="bg-card border border-border rounded-xl p-4 md:p-6 card-hover">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 space-y-2 sm:space-y-0">
                 <h3 className="text-accent font-semibold text-base md:text-lg">{result.title}</h3>
                 <span className="text-muted text-xs md:text-sm self-start sm:self-center">{result.date}</span>
               </div>
-              
+
               <p className="text-foreground mb-4 line-clamp-2 text-sm md:text-base leading-relaxed">
                 {result.content}
               </p>
-              
+
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                 <div className="flex gap-2 flex-wrap">
                   {result.tags.map((tag) => (
@@ -92,11 +92,11 @@ export default function SearchPage() {
               </div>
             </div>
           ))}
-          
+
           {filteredResults.length === 0 && searchQuery && (
             <div className="text-center py-12">
               <Search className="h-12 w-12 text-muted mx-auto mb-4" />
-              <p className="text-muted text-sm md:text-base">No notes found for "{searchQuery}"</p>
+              <p className="text-muted text-sm md:text-base">No notes found for &quot;{searchQuery}&quot;</p>
             </div>
           )}
         </div>
