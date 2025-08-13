@@ -14,20 +14,6 @@ services:
     networks:
       - capturenow-network
 
-  frontend:
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    container_name: capturenow-frontend
-    restart: always
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./:/app
-      - /app/node_modules 
-    networks:
-      - capturenow-network
-
 volumes:
   postgres-data:
     name: capturenow-postgres-data

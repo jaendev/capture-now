@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Sidebar } from "@/src/components/index";
+import { ConditionalSidebar } from "@/src/components/layout/ConditionalSidebar";
 
 export const metadata: Metadata = {
   title: "Capture-Now | Daily Notes App",
@@ -31,12 +32,14 @@ export default function RootLayout({
       </head>
       <body className="h-full bg-background text-primary font-sans antialiased">
         <div className="h-screen bg-background md:flex">
-          <Sidebar />
+          {/* <Sidebar /> */}
 
           {/* Main content area with mobile spacing */}
           <main className="flex-1 overflow-auto pt-16 md:pt-0">
             <div className="min-h-full">
-              {children}
+              <ConditionalSidebar>
+                {children}
+              </ConditionalSidebar>
             </div>
           </main>
         </div>

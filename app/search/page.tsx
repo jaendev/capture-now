@@ -1,9 +1,28 @@
 'use client'
+import { useAuthStore } from '@/src/stores/authStore';
 import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function SearchPage() {
+  const { user, isAuthenticated } = useAuthStore()
   const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter()
+
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/login")
+    }
+  }, [isAuthenticated, router])
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
 
   const sampleResults = [
     {

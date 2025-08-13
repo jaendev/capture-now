@@ -1,4 +1,19 @@
+'use client'
+
+import { useAuthStore } from "@/src/stores/authStore"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
+
 export default function SettingsPage() {
+  const router = useRouter()
+  const { isAuthenticated } = useAuthStore()
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/login")
+    }
+  }, [isAuthenticated, router])
+
   const settingsSections = [
     {
       title: "Notes",
