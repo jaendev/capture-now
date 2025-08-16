@@ -53,7 +53,7 @@ export function LogoutModal({ isOpen, onClose }: LogoutModalProps) {
           <div className="flex items-center space-x-4 mb-6 p-4 bg-surface rounded-lg border border-border">
             <div className="relative">
               <Image
-                src={user?.avatar_url || '/default-avatar.png'}
+                src={user?.avatar_url || '/boy.png'}
                 alt={user?.name || 'User'}
                 width={48}
                 height={48}

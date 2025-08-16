@@ -92,6 +92,7 @@ export function Sidebar() {
         transition-all duration-200
         md:relative md:translate-x-0 md:h-full
         ${isOpen ? 'md:w-64' : 'md:w-16'}
+        ${showLogoutModal ? 'md:w-96 w-96' : ''}
         fixed left-0 top-0 w-64 h-full
         ${isMobileMenuOpen ? 'translate-x-0 md:translate-x-0' : '-translate-x-full md:translate-x-0'}`}
       >
