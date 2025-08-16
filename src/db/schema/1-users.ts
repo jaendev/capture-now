@@ -5,8 +5,8 @@ export const usersTable = pgTable("users", {
   name: varchar({ length: 255 }).notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
   password: varchar({ length: 255 }).notNull(),
-  avatar_url: varchar({ length: 255 }),
+  avatar_url: varchar('avatar_url', { length: 255 }).default('/uploads/avatars/boy.png'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdateFn(() => new Date()),
-  last_login: timestamp('last_login').notNull().defaultNow(),
+  lastlogin: timestamp('last_login').notNull().defaultNow(),
 });

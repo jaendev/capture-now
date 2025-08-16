@@ -1,18 +1,21 @@
 'use client'
 
 import { useAuthStore } from "@/src/stores/authStore"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useEffect } from "react"
 
 export default function SettingsPage() {
-  const router = useRouter()
   const { isAuthenticated } = useAuthStore()
+  const { setLastVisitedPath } = useAuthStore();
+  const path = usePathname();
+  const router = useRouter()
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login")
-    }
-  }, [isAuthenticated, router])
+    // if (!isAuthenticated) {
+    //   router.push("/login")
+    // }
+    setLastVisitedPath(path)
+  }, [isAuthenticated, router, setLastVisitedPath, path]);
 
   const settingsSections = [
     {

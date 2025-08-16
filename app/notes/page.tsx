@@ -1,27 +1,22 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useAuthStore } from "@/src/stores/authStore"
-import { logout } from "@/src/lib/auth-client"
 
 export default function NotesPage() {
-  const { user, isAuthenticated } = useAuthStore()
+  const { isAuthenticated } = useAuthStore()
+  const { setLastVisitedPath } = useAuthStore();
+  const path = usePathname();
   const router = useRouter()
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login")
-    }
-  }, [isAuthenticated, router])
+    // if (!isAuthenticated) {
+    //   router.push("/login")
+    // }
+    setLastVisitedPath(path)
+  }, [isAuthenticated, router, setLastVisitedPath, path]);
 
-  if (!isAuthenticated || !user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
-  }
 
   return (
     <div className="h-screen bg-background md:flex">
@@ -30,17 +25,10 @@ export default function NotesPage() {
           <div className="max-w-4xl mx-auto">
             {/* Header with logout */}
             <div className="mb-6 md:mb-8 px-4">
-              <div className="flex justify-between items-start">
+              <div className="flex items-start">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">My Notes</h1>
-                  <p className="text-muted text-sm md:text-base">Welcome back, {user.name}!</p>
                 </div>
-                <button
-                  onClick={logout}
-                  className="bg-surface hover:bg-hover text-muted hover:text-accent border border-border rounded-lg px-4 py-2 text-sm transition-colors"
-                >
-                  Sign out
-                </button>
               </div>
             </div>
 

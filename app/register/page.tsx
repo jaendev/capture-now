@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { registerSchema } from "@/src/lib/validations"
-import { register, login } from "@/src/lib/auth-client"
+import { register, login, isAuthenticated } from "@/src/lib/auth-client"
 import { z } from "zod"
+import { useAuthStore } from "@/src/stores/authStore"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -14,9 +15,18 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
   })
+  const { getRedirectPath } = useAuthStore();
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      router.push(getRedirectPath())
+    } else {
+      router.push('/register')
+    }
+  }, [router, getRedirectPath])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

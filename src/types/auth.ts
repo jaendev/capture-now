@@ -2,7 +2,7 @@ export interface AuthUser {
   id: string
   name: string
   email: string
-  image?: string
+  avatar_url?: string
 }
 
 export interface AuthSession {

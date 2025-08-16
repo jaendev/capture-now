@@ -1,37 +1,26 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useAuthStore } from "@/src/stores/authStore"
-import { logout } from "@/src/lib/auth-client"
 import { NotesPageSkeleton } from "@/src/components/skeletons/NotesPagesSkeleton"
 import { PencilLine } from "lucide-react"
 
 export default function NotesPage() {
   const { isAuthenticated } = useAuthStore()
   const [isLoading, setIsLoading] = useState(true)
+
+  const { setLastVisitedPath } = useAuthStore();
+  const path = usePathname();
   const router = useRouter()
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login")
-      return
-    }
-
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
-
-    return () => clearTimeout(timer)
-  }, [isAuthenticated, router])
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
-  }
+    // if (!isAuthenticated) {
+    //   router.push("/login")
+    // }
+    setLastVisitedPath(path)
+    setIsLoading(false)
+  }, [isAuthenticated, router, setLastVisitedPath, path]);
 
   return (
     <div className="h-screen bg-background md:flex">
@@ -43,7 +32,7 @@ export default function NotesPage() {
             {/* Hero Section */}
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-8 md:mb-12">
-                <div className="flex justify-between items-start mb-6">
+                <div className="flex items-start mb-6">
                   <div className="flex-1">
                     <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-gradient mb-4 px-4">
                       Capture your ideas
@@ -52,12 +41,6 @@ export default function NotesPage() {
                       The fastest and most elegant way to save your daily thoughts
                     </p>
                   </div>
-                  <button
-                    onClick={logout}
-                    className="bg-surface hover:bg-hover text-muted hover:text-accent border border-border rounded-lg px-4 py-2 text-sm transition-colors"
-                  >
-                    Sign out
-                  </button>
                 </div>
               </div>
 

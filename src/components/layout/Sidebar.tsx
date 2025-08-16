@@ -8,13 +8,16 @@ import Image from 'next/image';
 
 import { navigation } from '@/constants/navigation-sidebar';
 import { useSidebarStore } from '@/src/stores/sidebarStore';
+import { useAuthStore } from '@/src/stores/authStore';
+import { LogoutModal } from '@/src/components/ui/LogoutModal';
 
 export function Sidebar() {
-  // Zustand store
   const { isOpen, showLabels, toggleSidebar, initializeSidebar, isInitialized } = useSidebarStore();
-
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const pathname = usePathname();
+  const { user } = useAuthStore();
+  const imageUrl = user?.avatar_url || 'boy';
 
   // Initialize showLabels on component mount
   useEffect(() => {
@@ -178,12 +181,31 @@ export function Sidebar() {
 
         <div className={` 
         flex items-center justify-center transition-all duration-300
-        ${isOpen ? 'opacity-100 h-auto p-3' : 'opacity-0 h-0 p-0'}
+        ${isOpen ? 'opacity-100 h-auto p-3' : 'hidden'}
         `}
         >
-          <Image src="/icon.svg" alt="Capture Now" className=' rounded-full'
-            width={28} height={28} />
+          <div className="relative group">
+            <Image
+              onClick={() => setShowLogoutModal(!showLogoutModal)}
+              src={imageUrl}
+              alt={user?.name || 'boy'}
+              className='rounded-full cursor-pointer'
+              width={48}
+              height={48}
+            />
+
+            {/* Custom tooltip */}
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-surface border border-border rounded-lg text-xs text-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+              {user?.name || 'User'}
+            </div>
+          </div>
         </div>
+
+        {/* Logout Modal */}
+        <LogoutModal
+          isOpen={showLogoutModal}
+          onClose={() => setShowLogoutModal(false)}
+        />
 
         {/* Footer */}
         <div className="p-3 border-t border-border shrink-0">

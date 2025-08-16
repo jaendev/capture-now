@@ -4,27 +4,27 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { loginSchema } from "@/src/lib/validations"
-import { login } from "@/src/lib/auth-client"
+import { login, isAuthenticated } from "@/src/lib/auth-client"
 import { z } from "zod"
 import { useAuthStore } from "@/src/stores/authStore"
-
 
 export default function LoginPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const { isAuthenticated, clearLastVisitedPath, lastVisitedPath } = useAuthStore()
+  const { getRedirectPath } = useAuthStore();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   })
 
   useEffect(() => {
-    if (isAuthenticated) {
-      clearLastVisitedPath()
-      router.push(lastVisitedPath)
+    if (isAuthenticated()) {
+      router.push(getRedirectPath())
+    } else {
+      router.push('/login')
     }
-  }, [isAuthenticated, router, clearLastVisitedPath, lastVisitedPath])
+  }, [router, getRedirectPath])
 
 
   const handleSubmit = async (e: React.FormEvent) => {

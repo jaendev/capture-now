@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         name: user.name
       },
       NEXTAUTH_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "4d" }
     )
 
     return NextResponse.json({

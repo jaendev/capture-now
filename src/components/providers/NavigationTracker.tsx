@@ -6,15 +6,20 @@ import { useAuthStore } from '@/src/stores/authStore'
 
 export function NavigationTracker() {
   const pathname = usePathname()
-  const { setLastVisitedPath, lastVisitedPath } = useAuthStore()
-
-
-  console.log(`NavigationTracker: Current path is ${pathname}`);
-  console.log(`NavigationTracker: Setting last visited path to ${lastVisitedPath}`);
+  const { setLastVisitedPath, isAuthenticated, lastVisitedPath } = useAuthStore()
 
   useEffect(() => {
+    console.log('🔍 NavigationTracker - Current path:', pathname)
+    console.log('🔍 NavigationTracker - Is authenticated:', isAuthenticated)
+    console.log('🔍 NavigationTracker - Current lastVisitedPath:', lastVisitedPath)
+
+    // Track the path
     setLastVisitedPath(pathname)
-  }, [pathname, setLastVisitedPath])
+
+    // Check what was saved
+    const newLastPath = useAuthStore.getState().lastVisitedPath
+    console.log('💾 NavigationTracker - Saved path:', newLastPath)
+  }, [pathname, setLastVisitedPath, isAuthenticated, lastVisitedPath])
 
   return null
 }
