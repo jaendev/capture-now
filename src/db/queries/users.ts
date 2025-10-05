@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm"
 import { usersTable } from "../schema/1-users";
 import { db } from "..";
 import bcrypt from "bcryptjs";
+import { createDefaultTagsForUser } from "./tags";
 
 /**
  * Method to create a new user in the database.
@@ -26,6 +27,8 @@ export async function createUser(data: CreateUserDTO) {
       createdAt: usersTable.createdAt,
     });
 
+  // When the user registers, tags will be created by default
+  createDefaultTagsForUser(user.id)
   return user
 }
 

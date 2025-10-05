@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, Plus, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 import { navigation } from '@/constants/navigation-sidebar';
@@ -16,8 +16,9 @@ export function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useAuthStore();
-  const imageUrl = user?.avatar_url || 'boy';
+  const imageUrl = user?.avatar_url ? user?.avatar_url : '/uploads/avatars/boy.png';
 
   // Initialize showLabels on component mount
   useEffect(() => {
@@ -118,9 +119,11 @@ export function Sidebar() {
 
         {/* Quick add button*/}
         <div className="p-3 shrink-0">
-          <button className={`
+          <button onClick={() => router.push('/notes/new')}
+
+            className={`
             w-full bg-gradient-primary hover:opacity-90 text-foreground rounded-md 
-            transition-all duration-200 flex items-center justify-center
+            transition-all duration-200 flex items-center justify-center cursor-pointer
             ${(isOpen || isMobileMenuOpen) ? 'p-2' : 'md:p-2 p-3'}
           `}>
             <Plus size={18} />
@@ -189,7 +192,7 @@ export function Sidebar() {
             <Image
               onClick={() => setShowLogoutModal(!showLogoutModal)}
               src={imageUrl}
-              alt={user?.name || 'boy'}
+              alt={user?.name || 'user'}
               className='rounded-full cursor-pointer'
               width={48}
               height={48}
@@ -220,7 +223,7 @@ export function Sidebar() {
             </div>
           )}
         </div>
-      </aside>
+      </aside >
     </>
   );
 }

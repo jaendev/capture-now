@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { registerSchema } from "@/src/lib/validations"
 import { createUser, getUserByEmail } from "@/src/db/queries/users"
+import { createDefaultTagsForUser } from "@/src/db/queries/tags"
 
 /**
  * Method to handle user registration.
@@ -14,6 +15,7 @@ export async function POST(request: NextRequest) {
 
     // Check if user already exists
     const existingUser = await getUserByEmail(email)
+
     if (existingUser) {
       return NextResponse.json(
         { message: "User already exists" },
@@ -21,6 +23,9 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await createUser({ name, email, password })
+
+    // When user is registered, tags will be created by default  
+    await createDefaultTagsForUser(user.id)
 
     return NextResponse.json({
       message: "User created successfully",

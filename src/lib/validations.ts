@@ -24,9 +24,10 @@ export const updateUserSchema = z.object({
 export const createNoteSchema = z.object({
   title: z.string().min(1, "Title is required").max(255),
   content: z.string().min(1, "Content is required"),
-  emoji: z.string().min(1).max(10),
+  emoji: z.string().min(1).max(10).optional(),
   isFavorite: z.boolean().default(false),
   isArchived: z.boolean().default(false),
+  tagIds: z.array(z.string()),
 })
 
 export const updateNoteSchema = z.object({
@@ -38,11 +39,11 @@ export const updateNoteSchema = z.object({
 })
 
 export const searchNotesSchema = z.object({
-  q: z.string().optional(),
+  search: z.string().optional(),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(10),
-  isFavorite: z.boolean().optional(),
-  isArchived: z.boolean().optional(),
+  isFavorite: z.coerce.boolean().optional(),
+  isArchived: z.coerce.boolean().optional(),
 })
 
 // Tag schemas

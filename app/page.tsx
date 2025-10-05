@@ -15,9 +15,6 @@ export default function NotesPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // if (!isAuthenticated) {
-    //   router.push("/login")
-    // }
     setLastVisitedPath(path)
     setIsLoading(false)
   }, [isAuthenticated, router, setLastVisitedPath, path]);

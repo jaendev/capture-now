@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const params = Object.fromEntries(searchParams.entries())
+
     const validatedParams = searchNotesSchema.parse(params)
 
     const result = await getUserNotes(user.userId, validatedParams)
@@ -44,19 +45,25 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+
+    // Validate the note data (including tagIds)
     const validatedData = createNoteSchema.parse(body)
 
+    // Create note with automatic tag relationships
     const note = await createNote({
       ...validatedData,
       userId: user.userId,
+      emoji: validatedData.emoji ?? "",
+      tagIds: validatedData.tagIds || [],
     })
 
-    return NextResponse.json(note, { status: 201 })
+    return NextResponse.json({
+      ...note,
+      message: `Note created successfully${validatedData.tagIds?.length ? ` with ${validatedData.tagIds.length} tag(s)` : ''}`
+    }, { status: 201 })
+
   } catch (error) {
-    console.error("Create note error:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+    console.error("❌ Create note error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

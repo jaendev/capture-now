@@ -1,19 +1,37 @@
 import { db } from "@/src/db"
-import { notesTable } from "@/src/db/schema"
+import { notesTable, tagsTable, noteTagsTable } from "@/src/db/schema"
 import { CreateNoteDTO, GetUserNotes, UpdateNoteDTO } from "@/src/types/Note"
 import { eq, and, or, ilike, desc, count } from "drizzle-orm"
+import { createNoteTagsBatch } from "./noteTags"
 
 /**
- * Method to create a new note in the database.
+ * Method to create a new note in the database with optional tags.
  * @param data - The data to create a new note.
- * @returns note - The created note object.
+ * @returns note - The created note object with tags.
  */
 export async function createNote(data: CreateNoteDTO) {
+  const { tagIds, ...noteData } = data
+
+  console.log("Creating note with data:", { ...noteData, tagIds })
+
   const [note] = await db
     .insert(notesTable)
-    .values(data)
+    .values(noteData)
     .returning()
 
+  console.log("Note created with ID:", note.id)
+
+  // Step 2: Create note-tag relationships immediately
+  if (tagIds && tagIds.length > 0) {
+    console.log("Creating note-tag relationships for tagIds:", tagIds)
+
+    // Create all note-tag relationships
+    const noteTagRelations = await createNoteTagsBatch(note.id, tagIds)
+
+    console.log("Relations created:", noteTagRelations)
+  }
+
+  console.log("Note creation completed")
   return note
 }
 
@@ -34,6 +52,40 @@ export async function getNoteById(id: string, userId: string) {
     .limit(1)
 
   return note
+}
+
+/**
+ * Method to retrieve a note with its tags by ID
+ * @param noteId - The ID of the note
+ * @returns note with its associated tags
+ */
+export async function getNoteWithTagsById(noteId: string) {
+  // Get the note
+  const [note] = await db
+    .select()
+    .from(notesTable)
+    .where(eq(notesTable.id, noteId))
+    .limit(1)
+
+  if (!note) {
+    return null
+  }
+
+  // Get the tags for this note
+  const noteTags = await db
+    .select({
+      tagId: tagsTable.id,
+      tagName: tagsTable.name,
+      tagColor: tagsTable.color,
+    })
+    .from(noteTagsTable)
+    .innerJoin(tagsTable, eq(noteTagsTable.tagId, tagsTable.id))
+    .where(eq(noteTagsTable.noteId, noteId))
+
+  return {
+    ...note,
+    tags: noteTags
+  }
 }
 
 /**
@@ -78,15 +130,39 @@ export async function getUserNotes(userId: string, options: GetUserNotes) {
     .from(notesTable)
     .where(and(...conditions))
 
+  // Get notes
   const notes = await db
     .select()
     .from(notesTable)
     .where(and(...conditions))
     .limit(limit)
     .offset(offset)
+    .orderBy(desc(notesTable.createdAt))
+
+  if (!notes) {
+    return null
+  }
+
+  // Get tags for each note
+  const notesWithTags = await Promise.all(
+    notes.map(async (note) => {
+      const noteTags = await db
+        .select()
+        .from(noteTagsTable)
+        .innerJoin(tagsTable, eq(noteTagsTable.tagId, tagsTable.id))
+        .where(eq(noteTagsTable.noteId, note.id))
+
+      console.log("Get note tags", noteTags);
+
+      return {
+        ...note,
+        tags: noteTags.map(t => t.tags)
+      }
+    })
+  )
 
   return {
-    notes,
+    notes: notesWithTags,
     pagination: {
       page,
       limit,

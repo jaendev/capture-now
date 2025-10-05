@@ -1,4 +1,5 @@
 'use client'
+import { useNotes } from '@/src/hooks/useNotes';
 import { useAuthStore } from '@/src/stores/authStore';
 import { Search } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -11,13 +12,14 @@ export default function SearchPage() {
   const path = usePathname();
   const { setLastVisitedPath } = useAuthStore();
 
-
   useEffect(() => {
-    // if (!isAuthenticated) {
-    //   router.push("/login")
-    // }
     setLastVisitedPath(path)
   }, [isAuthenticated, router, setLastVisitedPath, path]);
+
+  const { notes, pagination, loading, error } = useNotes()
+
+  console.log(notes);
+
 
   const sampleResults = [
     {
@@ -44,12 +46,12 @@ export default function SearchPage() {
   ];
 
   const filteredResults = searchQuery
-    ? sampleResults.filter(result =>
+    ? notes.filter(result =>
       result.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       result.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      result.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      result.tags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()))
     )
-    : sampleResults;
+    : notes;
 
   return (
     <div className="p-4 md:p-6">
@@ -85,7 +87,12 @@ export default function SearchPage() {
             <div key={result.id} className="bg-card border border-border rounded-xl p-4 md:p-6 card-hover">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 space-y-2 sm:space-y-0">
                 <h3 className="text-accent font-semibold text-base md:text-lg">{result.title}</h3>
-                <span className="text-muted text-xs md:text-sm self-start sm:self-center">{result.date}</span>
+                <span className="text-muted text-xs md:text-sm self-start sm:self-center">
+                  {new Date(result.createdAt).toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
               </div>
 
               <p className="text-foreground mb-4 line-clamp-2 text-sm md:text-base leading-relaxed">
@@ -95,8 +102,8 @@ export default function SearchPage() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                 <div className="flex gap-2 flex-wrap">
                   {result.tags.map((tag) => (
-                    <span key={tag} className="px-2 py-1 bg-primary/20 text-primary rounded text-xs">
-                      {tag}
+                    <span key={tag.id} className="px-2 py-1 bg-primary/20 text-primary rounded text-xs">
+                      {tag.name}
                     </span>
                   ))}
                 </div>

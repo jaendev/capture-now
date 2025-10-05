@@ -14,6 +14,7 @@ interface LogoutModalProps {
 export function LogoutModal({ isOpen, onClose }: LogoutModalProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const { user } = useAuthStore()
+  const imageUrl = user?.avatar_url ? user?.avatar_url : '/uploads/avatars/boy.png';
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
@@ -53,7 +54,7 @@ export function LogoutModal({ isOpen, onClose }: LogoutModalProps) {
           <div className="flex items-center space-x-4 mb-6 p-4 bg-surface rounded-lg border border-border">
             <div className="relative">
               <Image
-                src={user?.avatar_url || '/boy.png'}
+                src={imageUrl}
                 alt={user?.name || 'User'}
                 width={48}
                 height={48}

@@ -10,7 +10,7 @@ export const notesTable = pgTable("notes", {
   }),
   title: varchar({ length: 255 }).notNull(),
   content: text().notNull(),
-  emoji: varchar({ length: 10 }).notNull(),
+  emoji: varchar({ length: 10 }),
   isFavorite: boolean('is_favorite').notNull().default(false),
   isArchived: boolean('is_archived').notNull().default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -21,9 +21,10 @@ export const notesTable = pgTable("notes", {
   updatedAtIdx: index('idx_notes_updated_at').on(table.updatedAt),
 }));
 
-export const notesRelations = relations(notesTable, ({ one }) => ({
+export const notesRelations = relations(notesTable, ({ one, many }) => ({
   user: one(usersTable, {
     fields: [notesTable.userId],
     references: [usersTable.id]
-  })
+  }),
+  // noteTags: many(() => import('./4-note_tags').then(m => m.noteTagsTable))
 }));
