@@ -1,4 +1,5 @@
 import { apiClient } from "@/app/api/apiClient";
-import { NotesResponse } from "../types/Note";
+import { CreateNote, CreateNoteDTO, NotesResponse } from "../types/Note";
 
-export const getNotes = () => apiClient.get<NotesResponse>("/notes");
+export const getNotes = (page: number = 1, limit: number = 9) => apiClient.get<NotesResponse>(`/notes?page=${page}&limit=${limit}`);
+export const createNote = (data: CreateNote) => apiClient.post<CreateNote>("/notes", data)

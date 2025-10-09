@@ -96,7 +96,7 @@ export async function getNoteWithTagsById(noteId: string) {
 export async function getUserNotes(userId: string, options: GetUserNotes) {
   const {
     page = 1,
-    limit = 10,
+    limit = 8,
     search,
     isFavorite,
     isArchived
@@ -139,6 +139,9 @@ export async function getUserNotes(userId: string, options: GetUserNotes) {
     .offset(offset)
     .orderBy(desc(notesTable.createdAt))
 
+  console.log("Maximum notes: ", notes.length);
+
+
   if (!notes) {
     return null
   }
@@ -151,8 +154,6 @@ export async function getUserNotes(userId: string, options: GetUserNotes) {
         .from(noteTagsTable)
         .innerJoin(tagsTable, eq(noteTagsTable.tagId, tagsTable.id))
         .where(eq(noteTagsTable.noteId, note.id))
-
-      console.log("Get note tags", noteTags);
 
       return {
         ...note,

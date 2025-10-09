@@ -41,7 +41,7 @@ export const updateNoteSchema = z.object({
 export const searchNotesSchema = z.object({
   search: z.string().optional(),
   page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(10),
+  limit: z.coerce.number().min(1).max(100).default(9),
   isFavorite: z.coerce.boolean().optional(),
   isArchived: z.coerce.boolean().optional(),
 })

@@ -16,34 +16,7 @@ export default function SearchPage() {
     setLastVisitedPath(path)
   }, [isAuthenticated, router, setLastVisitedPath, path]);
 
-  const { notes, pagination, loading, error } = useNotes()
-
-  console.log(notes);
-
-
-  const sampleResults = [
-    {
-      id: 1,
-      title: "Project Ideas",
-      content: "Need to work on the new dashboard design and implement user authentication...",
-      tags: ["work", "projects"],
-      date: "2 hours ago"
-    },
-    {
-      id: 2,
-      title: "Meeting Notes",
-      content: "Discussed the quarterly goals and upcoming product launches...",
-      tags: ["meetings", "goals"],
-      date: "1 day ago"
-    },
-    {
-      id: 3,
-      title: "Shopping List",
-      content: "Groceries: milk, bread, eggs, coffee beans, vegetables...",
-      tags: ["personal", "shopping"],
-      date: "3 days ago"
-    },
-  ];
+  const { notes } = useNotes()
 
   const filteredResults = searchQuery
     ? notes.filter(result =>
@@ -102,12 +75,17 @@ export default function SearchPage() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                 <div className="flex gap-2 flex-wrap">
                   {result.tags.map((tag) => (
-                    <span key={tag.id} className="px-2 py-1 bg-primary/20 text-primary rounded text-xs">
+                    <span key={tag.id}
+                      className="px-2 py-1 bg-primary/20 text-primary rounded text-xs"
+                      style={{
+                        backgroundColor: `${tag.color}30`,
+                        color: tag.color
+                      }}>
                       {tag.name}
                     </span>
                   ))}
                 </div>
-                <button className="text-muted hover:text-accent transition-colors text-sm self-start sm:self-center">
+                <button className="text-muted hover:text-accent transition-colors text-sm self-start sm:self-center cursor-pointer">
                   Open
                 </button>
               </div>

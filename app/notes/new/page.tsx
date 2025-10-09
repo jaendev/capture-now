@@ -5,51 +5,52 @@ import { useRouter } from 'next/navigation'
 import { Save, ArrowLeft, X } from 'lucide-react'
 import BreadCrumb from "@/src/components/layout/BreadCrumb"
 import { MarkdownEditor } from "@/src/components/editor/MarkdownEditor"
-import { useAuthStore } from '@/src/stores/authStore'
 import { useTags } from '@/src/hooks/useTags'
+import { CreateNote } from '@/src/types/Note'
+import { createNote } from '@/src/services/noteService'
 
 export default function NoteNewPage() {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [selectedTag, setSelectedTag] = useState<string[]>([])
+  const [noteData, setNoteData] = useState<CreateNote>({
+    title: '',
+    content: '',
+    tagIds: []
+  })
+
   const [currentTag, setCurrentTag] = useState<string>('')
   const [isSaving, setIsSaving] = useState(false)
-  const { token } = useAuthStore()
   const { tags } = useTags()
   const router = useRouter()
 
   const handleAddTag = (tagId: string) => {
-    if (tagId && !selectedTag.includes(tagId)) {
-      setSelectedTag([...selectedTag, tagId])
-      setCurrentTag('')
+    if (tagId && !noteData?.tagIds.includes(tagId)) {
+      setNoteData(prev => ({
+        ...prev,
+        tagIds: [...prev?.tagIds, tagId]
+      }));
+      setCurrentTag('');
     }
-  }
+  };
 
   const handleRemoveTag = (tagId: string) => {
-    setSelectedTag(selectedTag.filter(id => id !== tagId))
-  }
+    setNoteData(prev => ({
+      ...prev,
+      tagIds: prev.tagIds.filter(id => id !== tagId)
+    }));
+  };
+
 
   const handleSave = async () => {
     setIsSaving(true)
-    console.log('Saving note with data:', { title, content, tagsId: selectedTag });
+    console.log('Saving note with data:', noteData);
 
     try {
-      const response = await fetch('/api/notes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ title, content, tagIds: selectedTag }),
-      })
 
-      console.log('Response:', response);
+      const response = await createNote(noteData)
 
-      // Simulate API call
-      // await new Promise(resolve => setTimeout(resolve, 1000))
+      console.log(response);
 
       // Redirect to notes list after saving
-      // router.push('/notes')
+      router.push('/notes')
     } catch (error) {
       console.error('Error saving note:', error)
     } finally {
@@ -86,7 +87,7 @@ export default function NoteNewPage() {
             <div className="flex items-center space-x-3">
               <button
                 onClick={handleSave}
-                disabled={isSaving || !title.trim()}
+                disabled={isSaving || !noteData.title.trim()}
                 className="flex items-center space-x-2 bg-gradient-primary hover:opacity-90 text-foreground px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving ? (
@@ -116,8 +117,8 @@ export default function NoteNewPage() {
               <input
                 id="title"
                 type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                value={noteData.title}
+                onChange={(e) => setNoteData(prev => ({ ...prev, title: e.target.value }))}
                 placeholder="Enter note title..."
                 className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-border-focus transition-colors"
               />
@@ -154,14 +155,18 @@ export default function NoteNewPage() {
               </div>
 
               {/* Selected Tags Display */}
-              {selectedTag.length > 0 && (
+              {noteData?.tagIds.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3">
-                  {selectedTag.map((tagId) => {
+                  {noteData?.tagIds.map((tagId) => {
                     const tag = tags?.find(t => t.id === tagId);
                     return (
                       <span
                         key={tagId}
                         className="inline-flex items-center gap-2 px-3 py-1 bg-surface border border-border text-foreground rounded-full"
+                        style={{
+                          backgroundColor: `${tag?.color}33`,
+                          color: tag?.color
+                        }}
                       >
                         {tag?.name}
                         <button
@@ -184,8 +189,8 @@ export default function NoteNewPage() {
                 Content
               </label>
               <MarkdownEditor
-                value={content}
-                onChange={setContent}
+                value={noteData.content}
+                onChange={(value) => setNoteData(prev => ({ ...prev, content: value }))}
                 placeholder="Type your note content here... 
                 You can use markdown formatting:
                 # Heading 1
@@ -211,7 +216,7 @@ export default function NoteNewPage() {
               </button>
               <button
                 onClick={handleSave}
-                disabled={isSaving || !title.trim()}
+                disabled={isSaving || !noteData.title.trim()}
                 className="flex-1 px-4 py-3 bg-gradient-primary hover:opacity-90 text-foreground rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving ? 'Saving...' : 'Save Note'}

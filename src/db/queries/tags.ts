@@ -23,8 +23,6 @@ export async function createMultipleTags(tags: CreateTagWithUserDTO[]) {
 
 export async function getUserTags(userId: string) {
 
-  console.log(userId);
-
   const tags = await db
     .select()
     .from(tagsTable)

@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
+
     const params = Object.fromEntries(searchParams.entries())
 
     const validatedParams = searchNotesSchema.parse(params)

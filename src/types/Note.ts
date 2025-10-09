@@ -1,13 +1,16 @@
 import { Tag } from "./Tag"
 
-export interface CreateNoteDTO {
-  userId: string
+export interface CreateNote {
   title: string
   content: string
   emoji?: string
   isFavorite?: boolean
   isArchived?: boolean
-  tagIds?: string[]
+  tagIds: string[]
+}
+
+export interface CreateNoteDTO extends CreateNote {
+  userId: string
 }
 
 export interface Note {
