@@ -147,7 +147,7 @@ export default function NoteNewPage() {
                 <button
                   type="button"
                   onClick={() => handleAddTag(currentTag)}
-                  disabled={!currentTag}
+                  disabled={!currentTag || noteData.tagIds.includes(currentTag)}
                   className="px-4 py-3 bg-gradient-primary hover:opacity-90 text-foreground rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Add
