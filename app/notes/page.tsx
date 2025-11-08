@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useAuthStore } from "@/src/stores/authStore"
 import { useNotes } from "@/src/hooks/useNotes"
 import { NotesUserSkeleton } from "@/src/components/skeletons/NotesUserSkeleton"
+import { Pagination } from "@/src/components/layout/Pagination"
 
 
 export default function NotesPage() {
@@ -24,22 +25,6 @@ export default function NotesPage() {
     router.push(`${path}/${id}`);
   }
 
-  const handleNextPage = () => {
-    if (pagination && currentPage < pagination.totalPages) {
-      setCurrentPage(prev => prev + 1);
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
-    }
-  };
-
-  const handleGoToPage = (page: number) => {
-    setCurrentPage(page);
-  };
-
   if (error) {
     return <div className="p-4 text-red-500">Error: {error}</div>
   }
@@ -55,7 +40,7 @@ export default function NotesPage() {
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">My Notes</h1>
                   <p className="text-muted text-sm">
-                    {pagination?.total || 0} notes found
+                    {pagination?.total || 0} total notes found
                     {pagination && ` • Page ${currentPage} of ${pagination.totalPages}`}
                   </p>
                 </div>
@@ -63,7 +48,7 @@ export default function NotesPage() {
             </div>
 
             {loading ? (
-              <NotesUserSkeleton />
+              <NotesUserSkeleton cantNotes={notes.length} />
             ) : (
               <>
                 {/* Notes Grid */}
@@ -137,75 +122,15 @@ export default function NotesPage() {
                   )}
                 </div>
 
-                {/* Pagination Controls */}
-                {pagination && pagination.totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-4 mt-8 px-4 pb-8">
-                    <button
-                      onClick={handlePreviousPage}
-                      disabled={currentPage === 1}
-                      className="px-4 py-2 bg-card border border-border rounded-lg text-foreground hover:bg-hover transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
-                    >
-                      ← Previous
-                    </button>
-
-                    <div className="flex items-center gap-2">
-                      {/* Show first page */}
-                      {currentPage > 2 && (
-                        <>
-                          <button
-                            onClick={() => handleGoToPage(1)}
-                            className="w-10 h-10 rounded-lg bg-card border border-border hover:bg-hover transition-colors"
-                          >
-                            1
-                          </button>
-                          {currentPage > 3 && <span className="text-muted">...</span>}
-                        </>
-                      )}
-
-                      {/* Show current and adjacent pages */}
-                      {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                        .filter(page =>
-                          page === currentPage ||
-                          page === currentPage - 1 ||
-                          page === currentPage + 1
-                        )
-                        .map((page) => (
-                          <button
-                            key={page}
-                            onClick={() => handleGoToPage(page)}
-                            className={`w-10 h-10 rounded-lg transition-colors ${currentPage === page
-                              ? 'bg-gradient-primary text-foreground font-semibold'
-                              : 'bg-card border border-border text-foreground hover:bg-hover cursor-pointer'
-                              }`}
-                          >
-                            {page}
-                          </button>
-                        ))}
-
-                      {/* Show last page */}
-                      {currentPage < pagination.totalPages - 1 && (
-                        <>
-                          {currentPage < pagination.totalPages - 2 && <span className="text-muted">...</span>}
-                          <button
-                            onClick={() => handleGoToPage(pagination.totalPages)}
-                            className="w-10 h-10 rounded-lg bg-card border border-border hover:bg-hover transition-colors"
-                          >
-                            {pagination.totalPages}
-                          </button>
-                        </>
-                      )}
-                    </div>
-
-                    <button
-                      onClick={handleNextPage}
-                      disabled={currentPage === pagination.totalPages}
-                      className="px-4 py-2 bg-card border border-border rounded-lg text-foreground hover:bg-hover transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next →
-                    </button>
-                  </div>
-                )}
               </>
+            )}
+            {/* Pagination */}
+            {pagination && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={pagination.totalPages}
+                onPageChange={setCurrentPage}
+              />
             )}
           </div>
         </div>

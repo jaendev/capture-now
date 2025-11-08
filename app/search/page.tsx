@@ -1,4 +1,6 @@
 'use client'
+import { Pagination } from '@/src/components/layout/Pagination';
+import { SearchNotesSkeleton } from '@/src/components/skeletons/SearchNotesSkeleton';
 import { useNotes } from '@/src/hooks/useNotes';
 import { useAuthStore } from '@/src/stores/authStore';
 import { Search } from 'lucide-react';
@@ -6,17 +8,17 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function SearchPage() {
+  const CANTNOTES = 10;
   const { isAuthenticated } = useAuthStore()
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cantOfNotes, setCantOfNotes] = useState(CANTNOTES);
   const router = useRouter()
   const path = usePathname();
   const { setLastVisitedPath } = useAuthStore();
 
-  useEffect(() => {
-    setLastVisitedPath(path)
-  }, [isAuthenticated, router, setLastVisitedPath, path]);
+  const { notes, pagination, loading } = useNotes(currentPage, CANTNOTES)
 
-  const { notes } = useNotes()
 
   const filteredResults = searchQuery
     ? notes.filter(result =>
@@ -25,6 +27,20 @@ export default function SearchPage() {
       result.tags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()))
     )
     : notes;
+
+  useEffect(() => {
+    setLastVisitedPath(path)
+  }, [isAuthenticated, router, setLastVisitedPath, path]);
+
+  useEffect(() => {
+
+    if (filteredResults.length > 0) {
+      setCantOfNotes(filteredResults.length);
+    } else {
+      setCantOfNotes(notes.length);
+    }
+
+  }, [filteredResults, notes]);
 
   return (
     <div className="p-4 md:p-6">
@@ -49,54 +65,74 @@ export default function SearchPage() {
         </div>
 
         {/* Search Results */}
-        <div className="space-y-4 md:space-y-6 px-4">
+        <div className="px-4">
           {searchQuery && (
             <div className="text-sm text-muted">
               Found {filteredResults.length} results for &quot;{searchQuery}&quot;
             </div>
           )}
 
-          {filteredResults.map((result) => (
-            <div key={result.id} className="bg-card border border-border rounded-xl p-4 md:p-6 card-hover">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 space-y-2 sm:space-y-0">
-                <h3 className="text-accent font-semibold text-base md:text-lg">{result.title}</h3>
-                <span className="text-muted text-xs md:text-sm self-start sm:self-center">
-                  {new Date(result.createdAt).toLocaleTimeString('es-ES', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </span>
+          {loading ? (
+            <SearchNotesSkeleton cantNotes={cantOfNotes} />
+          ) : (
+            <>
+              <div className={`text-sm text-muted ${searchQuery ? 'hidden' : ''}`}>
+                Found {notes.length} results in total
               </div>
 
-              <p className="text-foreground mb-4 line-clamp-2 text-sm md:text-base leading-relaxed">
-                {result.content}
-              </p>
+              <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+                {filteredResults.map((result) => (
+                  <div key={result.id} className="bg-card border border-border rounded-xl p-4 md:p-6 card-hover">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 space-y-2 sm:space-y-0">
+                      <h3 className="text-accent font-semibold text-base md:text-lg">{result.title}</h3>
+                      <span className="text-muted text-xs md:text-sm self-start sm:self-center">
+                        {new Date(result.createdAt).toLocaleTimeString('es-ES', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                <div className="flex gap-2 flex-wrap">
-                  {result.tags.map((tag) => (
-                    <span key={tag.id}
-                      className="px-2 py-1 bg-primary/20 text-primary rounded text-xs"
-                      style={{
-                        backgroundColor: `${tag.color}30`,
-                        color: tag.color
-                      }}>
-                      {tag.name}
-                    </span>
-                  ))}
-                </div>
-                <button className="text-muted hover:text-accent transition-colors text-sm self-start sm:self-center cursor-pointer">
-                  Open
-                </button>
+                    <p className="text-foreground mb-4 line-clamp-2 text-sm md:text-base leading-relaxed">
+                      {result.content}
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                      <div className="flex gap-2 flex-wrap">
+                        {result.tags.map((tag) => (
+                          <span key={tag.id}
+                            className="px-2 py-1 bg-primary/20 text-primary rounded text-xs"
+                            style={{
+                              backgroundColor: `${tag.color}30`,
+                              color: tag.color
+                            }}>
+                            {tag.name}
+                          </span>
+                        ))}
+                      </div>
+                      <button className="text-muted hover:text-accent transition-colors text-sm self-start sm:self-center cursor-pointer">
+                        Open
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
+            </>
+          )}
 
           {filteredResults.length === 0 && searchQuery && (
             <div className="text-center py-12">
               <Search className="h-12 w-12 text-muted mx-auto mb-4" />
               <p className="text-muted text-sm md:text-base">No notes found for &quot;{searchQuery}&quot;</p>
             </div>
+          )}
+
+          {pagination && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={pagination.totalPages}
+              onPageChange={setCurrentPage}
+            />
           )}
         </div>
       </div>

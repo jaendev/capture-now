@@ -139,9 +139,6 @@ export async function getUserNotes(userId: string, options: GetUserNotes) {
     .offset(offset)
     .orderBy(desc(notesTable.createdAt))
 
-  console.log("Maximum notes: ", notes.length);
-
-
   if (!notes) {
     return null
   }
