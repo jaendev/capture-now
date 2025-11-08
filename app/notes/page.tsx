@@ -6,7 +6,7 @@ import { useAuthStore } from "@/src/stores/authStore"
 import { useNotes } from "@/src/hooks/useNotes"
 import { NotesUserSkeleton } from "@/src/components/skeletons/NotesUserSkeleton"
 import { Pagination } from "@/src/components/layout/Pagination"
-
+import { paginationConsts } from '@/constants/pagination';
 
 export default function NotesPage() {
   const { isAuthenticated } = useAuthStore()
@@ -15,7 +15,7 @@ export default function NotesPage() {
   const router = useRouter()
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { notes, pagination, loading, error } = useNotes(currentPage)
+  const { notes, pagination, loading, error } = useNotes(currentPage, paginationConsts.NOTES_PER_PAGE)
 
   useEffect(() => {
     setLastVisitedPath(path)

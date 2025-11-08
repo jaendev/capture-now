@@ -6,19 +6,18 @@ import { useAuthStore } from '@/src/stores/authStore';
 import { Search } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { paginationConsts } from '@/constants/pagination';
 
 export default function SearchPage() {
-  const CANTNOTES = 10;
   const { isAuthenticated } = useAuthStore()
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [cantOfNotes, setCantOfNotes] = useState(CANTNOTES);
+  const [cantOfNotes, setCantOfNotes] = useState(paginationConsts.NOTES_PER_PAGE_SEARCH);
   const router = useRouter()
   const path = usePathname();
   const { setLastVisitedPath } = useAuthStore();
 
-  const { notes, pagination, loading } = useNotes(currentPage, CANTNOTES)
-
+  const { notes, pagination, loading } = useNotes(currentPage, paginationConsts.NOTES_PER_PAGE_SEARCH)
 
   const filteredResults = searchQuery
     ? notes.filter(result =>

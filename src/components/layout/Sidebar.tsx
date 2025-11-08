@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-import { navigation } from '@/constants/navigation-sidebar';
+import { navigationConstants } from '@/constants/navigation-sidebar';
 import { useSidebarStore } from '@/src/stores/sidebarStore';
 import { useAuthStore } from '@/src/stores/authStore';
 import { LogoutModal } from '@/src/components/ui/LogoutModal';
@@ -120,7 +120,6 @@ export function Sidebar() {
         {/* Quick add button*/}
         <div className="p-3 shrink-0">
           <button onClick={() => router.push('/notes/new')}
-
             className={`
             w-full bg-gradient-primary hover:opacity-90 text-foreground rounded-md 
             transition-all duration-200 flex items-center justify-center cursor-pointer
@@ -134,7 +133,7 @@ export function Sidebar() {
         {/* Navigation */}
         <div className="flex-1 p-2">
           <nav className="flex flex-col space-y-1">
-            {navigation.map((item) => {
+            {navigationConstants.map((item) => {
               const Icon = item.icon;
               const isActive = isRouteActive(item.href);
 
