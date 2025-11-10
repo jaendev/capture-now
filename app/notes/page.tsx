@@ -7,23 +7,22 @@ import { useNotes } from "@/src/hooks/useNotes"
 import { NotesUserSkeleton } from "@/src/components/skeletons/NotesUserSkeleton"
 import { Pagination } from "@/src/components/layout/Pagination"
 import { paginationConsts } from '@/constants/pagination';
+import { notesConstants } from "@/constants/notes"
+import { useNoteNavigation } from '@/src/hooks/useNoteNavigation';
 
-export default function NotesPage() {
+export default function ViewNotesPage() {
   const { isAuthenticated } = useAuthStore()
   const { setLastVisitedPath } = useAuthStore();
   const path = usePathname();
   const router = useRouter()
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(paginationConsts.CURRENT_PAGE);
 
   const { notes, pagination, loading, error } = useNotes(currentPage, paginationConsts.NOTES_PER_PAGE)
+  const { navigateByAction } = useNoteNavigation();
 
   useEffect(() => {
     setLastVisitedPath(path)
   }, [isAuthenticated, router, setLastVisitedPath, path]);
-
-  const handleNavigateToNote = (id: string) => {
-    router.push(`${path}/${id}`);
-  }
 
   if (error) {
     return <div className="p-4 text-red-500">Error: {error}</div>
@@ -53,7 +52,7 @@ export default function NotesPage() {
               <>
                 {/* Notes Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-4">
-                  {notes?.map((note) => ( // Removed .slice() - API should handle pagination
+                  {notes?.map((note) => (
                     <div key={note.id} className="bg-card border border-border rounded-xl p-4 md:p-6 card-hover">
                       <div className="flex items-start justify-between mb-4">
                         <h3 className="text-accent font-semibold text-sm md:text-base flex items-center gap-2">
@@ -104,7 +103,7 @@ export default function NotesPage() {
                           )}
                         </div>
                         <button
-                          onClick={() => handleNavigateToNote(note.id)}
+                          onClick={() => navigateByAction(notesConstants.EDIT, note.id)}
                           className="text-muted hover:text-accent transition-colors px-2 py-1 text-xs font-medium"
                         >
                           Open →

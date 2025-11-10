@@ -33,15 +33,17 @@ async function getAuthenticatedUser(request: NextRequest) {
  */
 export async function GET(
   request: NextRequest,
-  { params }: RouteContext
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const user = await getAuthenticatedUser(request)
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const note = await getNoteById(params.id, user.userId)
+    const note = await getNoteById(id, user.userId)
     if (!note) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 })
     }

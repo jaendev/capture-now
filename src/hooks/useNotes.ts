@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { useEffect, useState } from "react";
-import { getNotes } from "@/src/services/noteService";
+import { getNoteById, getNotes } from "@/src/services/noteService";
 import { Note, Pagination } from "@/src/types/Note";
 
-export function useNotes(page: number = 1, limit: number = 9) {
+export function useNotes(page: number = 1, limit: number = 9, noteId?: string) {
   const [notes, setNotes] = useState<Note[]>([])
+  const [note, setNote] = useState<Note>()
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true)
@@ -18,12 +19,16 @@ export function useNotes(page: number = 1, limit: number = 9) {
         setLoading(true)
         setError(null) // Reset error on new fetch
 
-
         const response = await getNotes(page, limit)
+        const responseNote = await getNoteById(noteId || '')
 
         if (response) {
           setNotes(response.notes);
           setPagination(response.pagination);
+        }
+
+        if (responseNote) {
+          setNote(responseNote);
         }
 
         const elapsedTime = Date.now() - startTime
@@ -46,7 +51,7 @@ export function useNotes(page: number = 1, limit: number = 9) {
     }
 
     fetchNotes()
-  }, [page, limit]) // Page and limit to dependency array
+  }, [page, limit, noteId]) // Page and limit to dependency array
 
   // Optional: Add manual refetch function
   const refetch = async () => {
@@ -67,5 +72,5 @@ export function useNotes(page: number = 1, limit: number = 9) {
     }
   }
 
-  return { notes, pagination, error, loading, refetch }
+  return { notes, note, pagination, error, loading, refetch }
 }

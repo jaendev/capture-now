@@ -11,7 +11,7 @@ import { paginationConsts } from '@/constants/pagination';
 export default function SearchPage() {
   const { isAuthenticated } = useAuthStore()
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(paginationConsts.CURRENT_PAGE);
   const [cantOfNotes, setCantOfNotes] = useState(paginationConsts.NOTES_PER_PAGE_SEARCH);
   const router = useRouter()
   const path = usePathname();

@@ -3,21 +3,24 @@
 import { ChevronLeft, ChevronRight, Plus, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 
 import { navigationConstants } from '@/constants/navigation-sidebar';
 import { useSidebarStore } from '@/src/stores/sidebarStore';
 import { useAuthStore } from '@/src/stores/authStore';
 import { LogoutModal } from '@/src/components/ui/LogoutModal';
+import { notesConstants } from '@/constants/notes';
+import { useNoteNavigation } from '@/src/hooks/useNoteNavigation';
 
 export function Sidebar() {
   const { isOpen, showLabels, toggleSidebar, initializeSidebar, isInitialized } = useSidebarStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
   const { user } = useAuthStore();
+  const { navigateByAction } = useNoteNavigation();
+
   const imageUrl = user?.avatar_url ? user?.avatar_url : '/uploads/avatars/boy.png';
 
   // Initialize showLabels on component mount
@@ -119,7 +122,7 @@ export function Sidebar() {
 
         {/* Quick add button*/}
         <div className="p-3 shrink-0">
-          <button onClick={() => router.push('/notes/new')}
+          <button onClick={() => navigateByAction(notesConstants.CREATE)}
             className={`
             w-full bg-gradient-primary hover:opacity-90 text-foreground rounded-md 
             transition-all duration-200 flex items-center justify-center cursor-pointer

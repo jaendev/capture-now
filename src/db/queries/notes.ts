@@ -51,7 +51,20 @@ export async function getNoteById(id: string, userId: string) {
     ))
     .limit(1)
 
-  return note
+  const noteTags = await db
+    .select({
+      id: tagsTable.id,
+      name: tagsTable.name,
+      color: tagsTable.color,
+    })
+    .from(noteTagsTable)
+    .innerJoin(tagsTable, eq(noteTagsTable.tagId, tagsTable.id))
+    .where(eq(noteTagsTable.noteId, note.id))
+
+  return {
+    ...note,
+    tags: noteTags
+  }
 }
 
 /**

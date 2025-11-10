@@ -17,6 +17,7 @@ import {
 
 interface MarkdownEditorProps {
   value: string
+  editing: boolean
   onChange: (value: string) => void
   placeholder?: string
   className?: string
@@ -26,7 +27,8 @@ export function MarkdownEditor({
   value,
   onChange,
   placeholder = "Type your description here...",
-  className = ""
+  className = "",
+  editing
 }: MarkdownEditorProps) {
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write')
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -280,7 +282,8 @@ export function MarkdownEditor({
         {activeTab === 'write' ? (
           <textarea
             ref={textareaRef}
-            value={value}
+            defaultValue={value}
+            disabled={!editing}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
             className={`
