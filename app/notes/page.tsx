@@ -7,8 +7,11 @@ import { useNotes } from "@/src/hooks/useNotes"
 import { NotesUserSkeleton } from "@/src/components/skeletons/NotesUserSkeleton"
 import { Pagination } from "@/src/components/layout/Pagination"
 import { paginationConsts } from '@/constants/pagination';
-import { notesConstants } from "@/constants/notes"
+import { MAXTITLELENGTH, notesConstants } from "@/constants/notes"
 import { useNoteNavigation } from '@/src/hooks/useNoteNavigation';
+import { getFirstLine, truncate } from "@/src/lib/string-utils"
+import { MARKDOWN_CHARS } from "@/constants/markdown"
+import { getTime, getDate } from "@/src/lib/date-time"
 
 export default function ViewNotesPage() {
   const { isAuthenticated } = useAuthStore()
@@ -19,6 +22,9 @@ export default function ViewNotesPage() {
 
   const { notes, pagination, loading, error } = useNotes(currentPage, paginationConsts.NOTES_PER_PAGE)
   const { navigateByAction } = useNoteNavigation();
+
+  console.log(notes[0]?.title.length);
+
 
   useEffect(() => {
     setLastVisitedPath(path)
@@ -54,20 +60,26 @@ export default function ViewNotesPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-4">
                   {notes?.map((note) => (
                     <div key={note.id} className="bg-card border border-border rounded-xl p-4 md:p-6 card-hover">
-                      <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center justify-between mb-4">
                         <h3 className="text-accent font-semibold text-sm md:text-base flex items-center gap-2">
                           {note.emoji && <span>{note.emoji}</span>}
-                          {note.title}
+                          {truncate(note.title, note.title.length > MAXTITLELENGTH ? note.title.length - 1 : MAXTITLELENGTH)}
                         </h3>
-                        <span className="text-muted text-xs md:text-sm font-mono">
-                          {new Date(note.createdAt).toLocaleTimeString('es-ES', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                        <span className="relative group">
+                          <span className="text-muted text-xs md:text-sm font-mono cursor-help">
+                            {getTime(note.createdAt)}
+                          </span>
+
+                          {/* Tooltip */}
+                          <span className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-surface border border-border text-foreground text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+                            {/* Tooltip date */}
+                            {getDate(note.createdAt)}
+                            <span className="absolute top-full right-4 -mt-1 border-4 border-transparent border-t-border"></span>
+                          </span>
                         </span>
                       </div>
                       <p className="text-foreground mb-4 text-sm md:text-base leading-relaxed line-clamp-3">
-                        {note.content}
+                        {getFirstLine(note.content, MARKDOWN_CHARS)}
                       </p>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex gap-2">
@@ -86,7 +98,7 @@ export default function ViewNotesPage() {
                       <div className="flex flex-row justify-between items-center">
                         <div className="flex flex-wrap gap-2">
                           {note.tags && note.tags.length > 0 ? (
-                            note.tags.slice(0, 3).map((tag) => (
+                            note.tags.slice(0, 2).map((tag) => (
                               <span
                                 key={tag.id}
                                 className="px-2 py-1 text-xs rounded-full font-medium"

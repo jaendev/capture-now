@@ -7,9 +7,12 @@ import { Search } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { paginationConsts } from '@/constants/pagination';
+import { notesConstants } from '@/constants/notes';
+import { useNoteNavigation } from '@/src/hooks/useNoteNavigation';
 
 export default function SearchPage() {
   const { isAuthenticated } = useAuthStore()
+  const { navigateByAction } = useNoteNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(paginationConsts.CURRENT_PAGE);
   const [cantOfNotes, setCantOfNotes] = useState(paginationConsts.NOTES_PER_PAGE_SEARCH);
@@ -109,7 +112,9 @@ export default function SearchPage() {
                           </span>
                         ))}
                       </div>
-                      <button className="text-muted hover:text-accent transition-colors text-sm self-start sm:self-center cursor-pointer">
+                      <button
+                        onClick={() => navigateByAction(notesConstants.EDIT, result.id)}
+                        className="text-muted hover:text-accent transition-colors text-sm self-start sm:self-center cursor-pointer">
                         Open
                       </button>
                     </div>

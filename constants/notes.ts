@@ -3,3 +3,5 @@ export const notesConstants = {
   CREATE: 1,
   EDIT: 2,
 }
+
+export const MAXTITLELENGTH = 19;

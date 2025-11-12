@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ConditionalSidebar } from "@/src/components/layout/ConditionalSidebar";
+import { NavigationTracker } from '@/src/components/layout/NavigationTracker';
+
 
 export const metadata: Metadata = {
   title: "Capture-Now | Daily Notes App",
@@ -30,6 +32,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className="h-full bg-background text-primary font-sans antialiased">
+        <NavigationTracker />
         <div className="h-screen bg-background md:flex">
           {/* Main content area with mobile spacing */}
           <main className="flex-1 overflow-auto pt-16 md:pt-0">
