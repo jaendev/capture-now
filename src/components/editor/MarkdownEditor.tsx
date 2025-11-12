@@ -282,7 +282,7 @@ export function MarkdownEditor({
         {activeTab === 'write' ? (
           <textarea
             ref={textareaRef}
-            defaultValue={value}
+            value={value}
             disabled={!editing}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}

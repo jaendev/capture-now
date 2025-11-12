@@ -2,7 +2,7 @@ import { db } from "@/src/db"
 import { notesTable, tagsTable, noteTagsTable } from "@/src/db/schema"
 import { CreateNoteDTO, GetUserNotes, UpdateNoteDTO } from "@/src/types/Note"
 import { eq, and, or, ilike, desc, count } from "drizzle-orm"
-import { createNoteTagsBatch } from "./noteTags"
+import { createNoteTagsBatch, updateNoteTags } from "./noteTags"
 
 /**
  * Method to create a new note in the database with optional tags.
@@ -193,6 +193,11 @@ export async function updateNote(
   userId: string,
   data: UpdateNoteDTO
 ) {
+
+  console.log('update data: ', data);
+  const { tagIds } = data
+
+
   const [note] = await db
     .update(notesTable)
     .set({
@@ -204,6 +209,11 @@ export async function updateNote(
       eq(notesTable.userId, userId)
     ))
     .returning()
+
+
+  if (tagIds && tagIds.length > 0) {
+    await updateNoteTags(note.id, tagIds)
+  }
 
   return note
 }

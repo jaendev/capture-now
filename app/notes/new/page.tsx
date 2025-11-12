@@ -7,16 +7,16 @@ import BreadCrumb from "@/src/components/layout/BreadCrumb"
 import { MarkdownEditor } from "@/src/components/editor/MarkdownEditor"
 import { useTags } from '@/src/hooks/useTags'
 import { CreateNote } from '@/src/types/Note'
-import { createNote } from '@/src/services/noteService'
+import { createNote, updateNote } from '@/src/services/noteService'
 import { useNotes } from '@/src/hooks/useNotes'
+import { paginationConsts } from '@/constants/pagination'
 
 interface CreateNoteViewProps {
   id?: string
 }
 
 export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
-
-  const { note } = useNotes(1, 9, noteId?.id)
+  const { note } = useNotes(paginationConsts.CURRENT_PAGE, paginationConsts.NOTES_PER_PAGE, noteId?.id)
 
   const [noteData, setNoteData] = useState<CreateNote>({
     title: '',
@@ -26,13 +26,11 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
 
   const [currentTag, setCurrentTag] = useState<string>('')
   const [isSaving, setIsSaving] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
   const { tags } = useTags()
   const router = useRouter()
-
-  const isEditMode = !!noteId.id
-  const buttonText = isEditMode ? 'Update Note' : 'Save Note'
-  const loadingText = isEditMode ? 'Updating...' : 'Saving...'
 
   const handleAddTag = (tagId: string) => {
     if (tagId && !noteData?.tagIds.includes(tagId)) {
@@ -56,9 +54,7 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
     console.log('Saving note with data:', noteData);
 
     try {
-      const response = await createNote(noteData)
-
-      console.log(response);
+      await createNote(noteData)
 
       // Redirect to notes list after saving
       router.push('/notes')
@@ -70,25 +66,41 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
   }
 
   const handleUpdate = async () => {
+    setIsUpdating(true)
+    console.log('Updating note with data:', noteData);
+    try {
+      const noteResponse = await updateNote(note?.id, noteData)
+
+      router.push(`/notes/${noteResponse.id}`)
+    } catch (error) {
+      console.error('Error updating note:', error)
+    } finally {
+      setIsUpdating(false)
+    }
   }
-
-  const handleAction = isEditMode ? handleUpdate : handleSave
-
 
   const handleCancel = () => {
     router.back()
   }
 
   useEffect(() => {
-    if (noteId) {
+    if (noteId.id) {
       // Load note data into state for editing
       setNoteData({
         title: note?.title ?? '',
         content: note?.content ?? '',
-        tagIds: note?.tags.map(t => t.id) ?? []
+        tagIds: note?.tags?.map(t => t.id) ?? []
       })
+      setIsEditMode(true)
     }
-  }, [note?.content, note?.tags, note?.title, noteId])
+  }, [note?.content, note?.tags, note?.title, noteId.id])
+
+  useEffect(() => {
+    if (!noteId.id) {
+      setIsEditing(true)
+    }
+
+  }, [noteId, isEditMode])
 
   return (
     <div className="h-full bg-background">
@@ -118,27 +130,47 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
 
             <div className="flex items-center space-x-3">
               <button
-                onClick={handleAction}
+                onClick={handleSave}
                 disabled={isSaving || !noteData.title.trim()}
-                className="flex items-center space-x-2 bg-gradient-primary hover:opacity-90 text-foreground px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`flex items-center space-x-2 bg-gradient-primary hover:opacity-90 text-foreground px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                  ${noteId?.id ? 'hidden' : 'block'}`}
               >
                 {isSaving ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground"></div>
-                    <span>{loadingText}</span>
+                    <span>Saving...</span>
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    <span>{buttonText}</span>
+                    <span>Save note</span>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={handleUpdate}
+                disabled={isEditing || isUpdating || !noteData.title.trim()}
+                className={`flex items-center space-x-2 bg-gradient-primary hover:opacity-90 text-foreground px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                  ${!noteId?.id ? 'hidden' : 'block'}`}
+              >
+                {isUpdating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground"></div>
+                    <span>Updating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Update note</span>
                   </>
                 )}
               </button>
               <button
                 onClick={() => setIsEditing(!isEditing)}
-                className="flex items-center space-x-2 bg-gradient-primary hover:opacity-90 text-foreground px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`flex items-center space-x-2 bg-gradient-primary hover:opacity-90 text-foreground px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                  ${!noteId?.id ? 'hidden' : 'block'}`}
               >
-                {isEditing && note ? (
+                {isEditing && note?.id ? (
                   <>
                     <Pen className="w-4 h-4" />
                     <span>Editing...</span>

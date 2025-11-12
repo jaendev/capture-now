@@ -47,6 +47,7 @@ export interface UpdateNoteDTO {
   title?: string
   content?: string
   emoji?: string
+  tagIds?: string[]
   isFavorite?: boolean
   isArchived?: boolean
 }

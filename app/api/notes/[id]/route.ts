@@ -66,9 +66,11 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: RouteContext
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const user = await getAuthenticatedUser(request)
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -77,7 +79,7 @@ export async function PATCH(
     const body = await request.json()
     const validatedData = updateNoteSchema.parse(body)
 
-    const note = await updateNote(params.id, user.userId, validatedData)
+    const note = await updateNote(id, user.userId, validatedData)
     if (!note) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 })
     }

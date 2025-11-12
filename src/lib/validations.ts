@@ -34,6 +34,7 @@ export const updateNoteSchema = z.object({
   title: z.string().min(1).max(255).optional(),
   content: z.string().min(1).optional(),
   emoji: z.string().min(1).max(10).optional(),
+  tagIds: z.array(z.string()),
   isFavorite: z.boolean().optional(),
   isArchived: z.boolean().optional(),
 })
