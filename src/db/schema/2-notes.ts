@@ -26,5 +26,4 @@ export const notesRelations = relations(notesTable, ({ one, many }) => ({
     fields: [notesTable.userId],
     references: [usersTable.id]
   }),
-  // noteTags: many(() => import('./4-note_tags').then(m => m.noteTagsTable))
 }));
