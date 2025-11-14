@@ -1,3 +1,4 @@
+import { notesConstants } from "@/constants/notes";
 import { z } from "zod";
 
 // User schemas
@@ -22,9 +23,9 @@ export const updateUserSchema = z.object({
 
 // Note schemas
 export const createNoteSchema = z.object({
-  title: z.string().min(1, "Title is required").max(255),
-  content: z.string().min(1, "Content is required"),
-  emoji: z.string().min(1).max(10).optional(),
+  title: z.string().min(1, "Title is required").max(notesConstants.MAX_TITLE_LENGTH, 'Title must be less than 100 characters'),
+  content: z.string().min(1, "Content is required").max(notesConstants.MAX_CONTENT_LENGTH, 'Content must be less than 50,000 characters'),
+  emoji: z.string().min(1).max(notesConstants.MAX_EMOJI).optional(),
   isFavorite: z.boolean().default(false),
   isArchived: z.boolean().default(false),
   tagIds: z.array(z.string()),

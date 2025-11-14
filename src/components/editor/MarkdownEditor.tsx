@@ -1,6 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
 
 import { useState, useRef, useCallback } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import {
   Bold,
   Italic,
@@ -12,7 +15,13 @@ import {
   ListChecks,
   AtSign,
   Maximize2,
-  Edit3
+  Edit3,
+  Strikethrough,
+  Quote,
+  Table,
+  Minus,
+  Heading2,
+  Heading3
 } from 'lucide-react'
 
 interface MarkdownEditorProps {
@@ -83,47 +92,158 @@ export function MarkdownEditor({
 
   const toolbarActions = {
     bold: () => wrapSelection('**'),
-    italic: () => wrapSelection('*'),
-    heading: () => insertLinePrefix('# '),
+    italic: () => wrapSelection('_'),
+    strikethrough: () => wrapSelection('~~'),
+    heading: () => insertAtCursor('# '),
+    heading2: () => insertAtCursor('## '),
+    heading3: () => insertAtCursor('### '),
     code: () => wrapSelection('`'),
     codeBlock: () => wrapSelection('```\n', '\n```'),
     link: () => wrapSelection('[', '](url)'),
     unorderedList: () => insertLinePrefix('- '),
     orderedList: () => insertLinePrefix('1. '),
     taskList: () => insertLinePrefix('- [ ] '),
+    blockquote: () => insertLinePrefix('> '),
+    horizontalRule: () => insertAtCursor('\n---\n'),
+    table: () => {
+      const tableTemplate = [
+        '| Column 1 | Column 2 | Column 3 |',
+        '|----------|----------|----------|',
+        '| Data 1   | Data 2   | Data 3   |',
+        '| Data 4   | Data 5   | Data 6   |'
+      ].join('\n')
+      insertAtCursor(tableTemplate)
+    },
     mention: () => insertAtCursor('@'),
   }
 
   const renderPreview = () => {
-    // Simple markdown preview - you can enhance this with a proper markdown parser
-    const lines = value.split('\n')
-
     return (
       <div className="prose prose-invert max-w-none p-4">
-        {lines.map((line, index) => {
-          if (line.startsWith('# ')) {
-            return <h1 key={index} className="text-2xl font-bold text-foreground mb-4">{line.slice(2)}</h1>
-          }
-          if (line.startsWith('## ')) {
-            return <h2 key={index} className="text-xl font-bold text-foreground mb-3">{line.slice(3)}</h2>
-          }
-          if (line.startsWith('### ')) {
-            return <h3 key={index} className="text-lg font-bold text-foreground mb-2">{line.slice(4)}</h3>
-          }
-          if (line.startsWith('- ')) {
-            return <li key={index} className="text-foreground ml-4">{line.slice(2)}</li>
-          }
-          if (line.startsWith('**') && line.endsWith('**')) {
-            return <p key={index} className="text-foreground font-bold mb-2">{line.slice(2, line.length - 2)}</p>
-          }
-          if (line.startsWith('*') && line.endsWith('*')) {
-            return <p key={index} className="text-foreground italic mb-2">{line.slice(1, line.length - 1)}</p>
-          }
-          if (line.trim() === '') {
-            return <br key={index} />
-          }
-          return <p key={index} className="text-foreground mb-2">{line}</p>
-        })}
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            // Headings
+            h1: ({ ...props }) => (
+              <h1 className="text-2xl font-bold text-foreground mb-4 c pb-2" {...props} />
+            ),
+            h2: ({ ...props }) => (
+              <h2 className="text-xl font-bold text-foreground mb-3 mt-6" {...props} />
+            ),
+            h3: ({ ...props }) => (
+              <h3 className="text-lg font-bold text-foreground mb-2 mt-4" {...props} />
+            ),
+            h4: ({ ...props }) => (
+              <h4 className="text-base font-bold text-foreground mb-2 mt-3" {...props} />
+            ),
+            h5: ({ ...props }) => (
+              <h5 className="text-sm font-bold text-foreground mb-2 mt-2" {...props} />
+            ),
+            h6: ({ ...props }) => (
+              <h6 className="text-xs font-bold text-foreground mb-2 mt-2" {...props} />
+            ),
+
+            // Paragraphs
+            p: ({ ...props }) => (
+              <p className="text-foreground mb-3 leading-relaxed" {...props} />
+            ),
+
+            // Lists
+            ul: ({ ...props }) => (
+              <ul className="list-disc ml-6 mb-3 text-foreground space-y-1" {...props} />
+            ),
+            ol: ({ ...props }) => (
+              <ol className="list-decimal ml-6 mb-3 text-foreground space-y-1" {...props} />
+            ),
+            li: ({ ...props }) => (
+              <li className="text-foreground" {...props} />
+            ),
+
+            // Code
+            code: ({ children, ...props }) => {
+              return (
+                <code className="block bg-surface p-4 rounded-lg text-accent font-mono text-sm overflow-x-auto mb-3 whitespace-pre" {...props}>
+                  {children}
+                </code>
+              )
+            },
+            pre: ({ ...props }) => (
+              <pre className="mb-3" {...props} />
+            ),
+
+            // Blockquote
+            blockquote: ({ ...props }) => (
+              <blockquote className="border-l-4 border-accent pl-4 italic text-muted mb-3 py-1" {...props} />
+            ),
+
+            // Links
+            a: ({ ...props }) => (
+              <a
+                className="text-accent hover:underline cursor-pointer"
+                target="_blank"
+                rel="noopener noreferrer"
+                {...props}
+              />
+            ),
+
+            // Images
+            img: ({ ...props }) => (
+              <img alt={props.alt} className="rounded-lg max-w-full h-auto my-4" {...props} />
+            ),
+
+            // Horizontal rule
+            hr: ({ ...props }) => (
+              <hr className="border-border my-6" {...props} />
+            ),
+
+            // Tables
+            table: ({ ...props }) => (
+              <div className="overflow-x-auto mb-4">
+                <table className="min-w-full border border-border" {...props} />
+              </div>
+            ),
+            thead: ({ ...props }) => (
+              <thead className="bg-surface" {...props} />
+            ),
+            tbody: ({ ...props }) => (
+              <tbody {...props} />
+            ),
+            tr: ({ ...props }) => (
+              <tr className="border-b border-border" {...props} />
+            ),
+            th: ({ ...props }) => (
+              <th className="px-4 py-2 text-left text-foreground font-semibold" {...props} />
+            ),
+            td: ({ ...props }) => (
+              <td className="px-4 py-2 text-foreground" {...props} />
+            ),
+
+            // Task list checkbox
+            input: ({ ...props }) => (
+              <input
+                className="mr-2 accent-accent cursor-pointer"
+                type="checkbox"
+                disabled
+                {...props}
+              />
+            ),
+
+            // Strong and emphasis
+            strong: ({ ...props }) => (
+              <strong className="font-bold text-foreground" {...props} />
+            ),
+            em: ({ ...props }) => (
+              <em className="italic text-foreground" {...props} />
+            ),
+
+            // Strikethrough (with remark-gfm)
+            del: ({ ...props }) => (
+              <del className="line-through text-muted" {...props} />
+            ),
+          }}
+        >
+          {value}
+        </ReactMarkdown>
       </div>
     )
   }
@@ -186,9 +306,23 @@ export function MarkdownEditor({
                 <button
                   onClick={toolbarActions.heading}
                   className="p-2 text-muted hover:text-foreground hover:bg-hover rounded-lg transition-colors"
-                  title="Heading"
+                  title="Heading 1"
                 >
                   <Heading className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={toolbarActions.heading2}
+                  className="p-2 text-muted hover:text-foreground hover:bg-hover rounded-lg transition-colors"
+                  title="Heading 2"
+                >
+                  <Heading2 className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={toolbarActions.heading3}
+                  className="p-2 text-muted hover:text-foreground hover:bg-hover rounded-lg transition-colors"
+                  title="Heading 3"
+                >
+                  <Heading3 className="w-5 h-5" />
                 </button>
                 <button
                   onClick={toolbarActions.bold}
@@ -203,6 +337,13 @@ export function MarkdownEditor({
                   title="Italic"
                 >
                   <Italic className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={toolbarActions.strikethrough}
+                  className="p-2 text-muted hover:text-foreground hover:bg-hover rounded-lg transition-colors"
+                  title="Strikethrough"
+                >
+                  <Strikethrough className="w-4 h-4" />
                 </button>
               </div>
 
@@ -257,6 +398,33 @@ export function MarkdownEditor({
                   title="Task list"
                 >
                   <ListChecks className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="w-px h-6 bg-border mx-2"></div>
+
+              {/* Block elements */}
+              <div className="flex items-center space-x-1">
+                <button
+                  onClick={toolbarActions.blockquote}
+                  className="p-2 text-muted hover:text-foreground hover:bg-hover rounded-lg transition-colors"
+                  title="Blockquote"
+                >
+                  <Quote className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={toolbarActions.table}
+                  className="p-2 text-muted hover:text-foreground hover:bg-hover rounded-lg transition-colors"
+                  title="Table"
+                >
+                  <Table className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={toolbarActions.horizontalRule}
+                  className="p-2 text-muted hover:text-foreground hover:bg-hover rounded-lg transition-colors"
+                  title="Horizontal rule"
+                >
+                  <Minus className="w-4 h-4" />
                 </button>
               </div>
 

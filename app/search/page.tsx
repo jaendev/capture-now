@@ -9,6 +9,9 @@ import { useEffect, useState } from 'react';
 import { paginationConsts } from '@/constants/pagination';
 import { notesConstants } from '@/constants/notes';
 import { useNoteNavigation } from '@/src/hooks/useNoteNavigation';
+import { getFirstLine } from '@/src/lib/string-utils';
+import { MARKDOWN_CHARS } from '@/constants/markdown';
+import { getDate, getTime } from '@/src/lib/date-time';
 
 export default function SearchPage() {
   const { isAuthenticated } = useAuthStore()
@@ -87,30 +90,40 @@ export default function SearchPage() {
                   <div key={result.id} className="bg-card border border-border rounded-xl p-4 md:p-6 card-hover">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 space-y-2 sm:space-y-0">
                       <h3 className="text-accent font-semibold text-base md:text-lg">{result.title}</h3>
-                      <span className="text-muted text-xs md:text-sm self-start sm:self-center">
-                        {new Date(result.createdAt).toLocaleTimeString('es-ES', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                      <span className="relative group">
+                        <span className="text-muted text-xs md:text-sm font-mono cursor-help">
+                          {getTime(result.createdAt)}
+                        </span>
+
+                        {/* Tooltip */}
+                        <span className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-surface border border-border text-foreground text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+                          {/* Tooltip date */}
+                          {getDate(result.createdAt)}
+                          <span className="absolute top-full right-4 -mt-1 border-4 border-transparent border-t-border"></span>
+                        </span>
                       </span>
                     </div>
 
                     <p className="text-foreground mb-4 line-clamp-2 text-sm md:text-base leading-relaxed">
-                      {result.content}
+                      {getFirstLine(result.content, MARKDOWN_CHARS)}
                     </p>
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                       <div className="flex gap-2 flex-wrap">
-                        {result.tags.map((tag) => (
-                          <span key={tag.id}
-                            className="px-2 py-1 bg-primary/20 text-primary rounded text-xs"
-                            style={{
-                              backgroundColor: `${tag.color}30`,
-                              color: tag.color
-                            }}>
-                            {tag.name}
-                          </span>
-                        ))}
+                        {result.tags.length > 0 && result.tags ? (
+                          result.tags.map((tag) => (
+                            <span key={tag.id}
+                              className="px-2 py-1 bg-primary/20 text-primary rounded text-xs"
+                              style={{
+                                backgroundColor: `${tag.color}30`,
+                                color: tag.color
+                              }}>
+                              {tag.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-muted text-xs italic">No tags</span>
+                        )}
                       </div>
                       <button
                         onClick={() => navigateByAction(notesConstants.EDIT, result.id)}

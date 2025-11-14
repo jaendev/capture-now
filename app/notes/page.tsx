@@ -7,7 +7,7 @@ import { useNotes } from "@/src/hooks/useNotes"
 import { NotesUserSkeleton } from "@/src/components/skeletons/NotesUserSkeleton"
 import { Pagination } from "@/src/components/layout/Pagination"
 import { paginationConsts } from '@/constants/pagination';
-import { MAXTITLELENGTH, notesConstants } from "@/constants/notes"
+import { notesConstants } from "@/constants/notes"
 import { useNoteNavigation } from '@/src/hooks/useNoteNavigation';
 import { getFirstLine, truncate } from "@/src/lib/string-utils"
 import { MARKDOWN_CHARS } from "@/constants/markdown"
@@ -63,7 +63,7 @@ export default function ViewNotesPage() {
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-accent font-semibold text-sm md:text-base flex items-center gap-2">
                           {note.emoji && <span>{note.emoji}</span>}
-                          {truncate(note.title, note.title.length > MAXTITLELENGTH ? note.title.length - 1 : MAXTITLELENGTH)}
+                          {truncate(note.title, note.title.length > notesConstants.TITLE_LENGHT ? note.title.length - 4 : notesConstants.TITLE_LENGHT)}
                         </h3>
                         <span className="relative group">
                           <span className="text-muted text-xs md:text-sm font-mono cursor-help">

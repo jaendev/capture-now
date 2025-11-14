@@ -5,11 +5,15 @@ import { useRouter } from 'next/navigation'
 import { Save, ArrowLeft, X, SquarePen, Pen } from 'lucide-react'
 import BreadCrumb from "@/src/components/layout/BreadCrumb"
 import { MarkdownEditor } from "@/src/components/editor/MarkdownEditor"
+import { ValidationMessage } from "@/src/components/ui/ValidationMessage"
+import { CharacterCounter } from "@/src/components/ui/CharacterCounter"
 import { useTags } from '@/src/hooks/useTags'
+import { useNoteValidation } from '@/src/hooks/useNoteValidation'
 import { CreateNote } from '@/src/types/Note'
 import { createNote, updateNote } from '@/src/services/noteService'
 import { useNotes } from '@/src/hooks/useNotes'
 import { paginationConsts } from '@/constants/pagination'
+import { notesConstants } from '@/constants/notes'
 
 interface CreateNoteViewProps {
   id?: string
@@ -29,10 +33,24 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
   const [isUpdating, setIsUpdating] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
+  const [submitAttempted, setSubmitAttempted] = useState(false)
+
   const { tags } = useTags()
   const router = useRouter()
 
+  // Validation
+  const { errors, warnings, isValid } = useNoteValidation({
+    title: noteData.title,
+    content: noteData.content,
+    tagIds: noteData.tagIds
+  })
+
   const handleAddTag = (tagId: string) => {
+    // Validate tag limit
+    if (noteData.tagIds.length >= notesConstants.MAX_TAGS_PER_NOTE) {
+      return
+    }
+
     if (tagId && !noteData?.tagIds.includes(tagId)) {
       setNoteData(prev => ({
         ...prev,
@@ -50,13 +68,17 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
   };
 
   const handleSave = async () => {
+    setSubmitAttempted(true)
+
+    // Validate before saving
+    if (!isValid) {
+      return
+    }
+
     setIsSaving(true)
-    console.log('Saving note with data:', noteData);
 
     try {
       await createNote(noteData)
-
-      // Redirect to notes list after saving
       router.push('/notes')
     } catch (error) {
       console.error('Error saving note:', error)
@@ -66,11 +88,17 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
   }
 
   const handleUpdate = async () => {
+    setSubmitAttempted(true)
+
+    // Validate before updating
+    if (!isValid) {
+      return
+    }
+
     setIsUpdating(true)
-    console.log('Updating note with data:', noteData);
+
     try {
       const noteResponse = await updateNote(note?.id, noteData)
-
       router.push(`/notes/${noteResponse.id}`)
     } catch (error) {
       console.error('Error updating note:', error)
@@ -85,7 +113,6 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
 
   useEffect(() => {
     if (noteId.id) {
-      // Load note data into state for editing
       setNoteData({
         title: note?.title ?? '',
         content: note?.content ?? '',
@@ -99,7 +126,6 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
     if (!noteId.id) {
       setIsEditing(true)
     }
-
   }, [noteId, isEditMode])
 
   return (
@@ -129,9 +155,10 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
             </div>
 
             <div className="flex items-center space-x-3">
+              {/* Save Button */}
               <button
                 onClick={handleSave}
-                disabled={isSaving || !noteData.title.trim()}
+                disabled={isSaving || (submitAttempted && !isValid)}
                 className={`flex items-center space-x-2 bg-gradient-primary hover:opacity-90 text-foreground px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
                   ${noteId?.id ? 'hidden' : 'block'}`}
               >
@@ -147,9 +174,11 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
                   </>
                 )}
               </button>
+
+              {/* Update Button */}
               <button
                 onClick={handleUpdate}
-                disabled={isEditing || isUpdating || !noteData.title.trim()}
+                disabled={isEditing || isUpdating || (submitAttempted && !isValid)}
                 className={`flex items-center space-x-2 bg-gradient-primary hover:opacity-90 text-foreground px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
                   ${!noteId?.id ? 'hidden' : 'block'}`}
               >
@@ -165,9 +194,11 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
                   </>
                 )}
               </button>
+
+              {/* Edit Toggle Button */}
               <button
                 onClick={() => setIsEditing(!isEditing)}
-                className={`flex items-center space-x-2 bg-gradient-primary hover:opacity-90 text-foreground px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                className={`flex items-center space-x-2 bg-gradient-primary hover:opacity-90 text-foreground px-4 py-2 rounded-lg font-medium transition-all
                   ${!noteId?.id ? 'hidden' : 'block'}`}
               >
                 {isEditing && note?.id ? (
@@ -184,6 +215,15 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
               </button>
             </div>
           </div>
+
+          {/* Validation Summary */}
+          {submitAttempted && !isValid && (
+            <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+              <p className="text-red-500 text-sm font-semibold">
+                ⚠️ Please fix the errors before saving
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -191,40 +231,54 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
           <div className="space-y-6">
             {/* Title Input */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
-                Title *
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="title" className="block text-sm font-medium text-foreground">
+                  Title *
+                </label>
+                <CharacterCounter
+                  current={noteData.title.length}
+                  max={notesConstants.MAX_TITLE_LENGTH}
+                  showPercentage
+                />
+              </div>
               <input
                 id="title"
                 type="text"
                 disabled={!isEditing}
-                defaultValue={noteData?.title}
+                value={noteData.title}
                 onChange={(e) => setNoteData(prev => ({ ...prev, title: e.target.value }))}
                 placeholder="Enter note title..."
-                className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-border-focus transition-colors"
+                className={`w-full px-4 py-3 bg-card border rounded-lg text-foreground placeholder-muted focus:outline-none transition-colors
+                  ${errors.title ? 'border-red-500 focus:border-red-500' : 'border-border focus:border-border-focus'}
+                `}
+                maxLength={notesConstants.MAX_TITLE_LENGTH}
+              />
+              <ValidationMessage
+                error={submitAttempted ? errors.title : undefined}
+                warning={warnings.title}
               />
             </div>
 
             {/* Tags Input */}
             <div>
               <label htmlFor="tags" className="block text-sm font-medium text-foreground mb-2">
-                Tags
+                Tags ({noteData.tagIds.length}/{notesConstants.MAX_TAGS_PER_NOTE})
               </label>
               <div className="flex gap-2">
                 <select
                   name="tagSelector"
                   id="tagSelector"
                   value={currentTag}
-                  disabled={!isEditing}
+                  disabled={!isEditing || noteData.tagIds.length >= notesConstants.MAX_TAGS_PER_NOTE}
                   onChange={(e) => setCurrentTag(e.target.value)}
-                  className="flex-1 px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-border-focus transition-colors"
+                  className="flex-1 px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-border-focus transition-colors disabled:opacity-50"
                 >
                   <option value="" disabled>Select a tag</option>
                   {tags?.map((tag) => (
                     <option
                       value={tag.id}
                       key={tag.id}
-                      disabled={noteData.tagIds.includes(tag.id) && !isEditing}
+                      disabled={noteData.tagIds.includes(tag.id)}
                     >
                       {tag.name}
                     </option>
@@ -233,20 +287,21 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
                 <button
                   type="button"
                   onClick={() => handleAddTag(currentTag)}
-                  disabled={!currentTag || noteData.tagIds.includes(currentTag)}
+                  disabled={!currentTag || noteData.tagIds.includes(currentTag) || noteData.tagIds.length >= notesConstants.MAX_TAGS_PER_NOTE}
                   className="px-4 py-3 bg-gradient-primary hover:opacity-90 text-foreground rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Add
                 </button>
               </div>
 
+              <ValidationMessage error={submitAttempted ? errors.tags : undefined} />
+
               {/* Selected Tags Display */}
               {noteData.tagIds.length > 0 ? (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {noteData.tagIds.map((tagId) => {
                     const tag = tags?.find(t => t.id === tagId);
-
-                    if (!tag) return null;  // If not found, do not show
+                    if (!tag) return null;
 
                     return (
                       <span
@@ -262,7 +317,7 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
                           type="button"
                           onClick={() => handleRemoveTag(tagId)}
                           disabled={!isEditing}
-                          className="hover:text-red-500 transition-colors"
+                          className="hover:text-red-500 transition-colors disabled:cursor-not-allowed"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -277,12 +332,24 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
 
             {/* Markdown Editor */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Content
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-foreground">
+                  Content
+                </label>
+                <CharacterCounter
+                  current={noteData.content.length}
+                  max={notesConstants.MAX_CONTENT_LENGTH}
+                  showPercentage
+                />
+              </div>
               <MarkdownEditor
                 value={noteData?.content || ''}
-                onChange={(value) => setNoteData(prev => ({ ...prev, content: value }))}
+                onChange={(value) => {
+                  // Prevenir que exceda el límite
+                  if (value.length <= notesConstants.MAX_CONTENT_LENGTH) {
+                    setNoteData(prev => ({ ...prev, content: value }))
+                  }
+                }}
                 placeholder="Type your note content here... 
                 You can use markdown formatting:
                 # Heading 1
@@ -294,8 +361,12 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
                 - [ ] Task lists
                 `code`
                 [links](url)"
-                className="min-h-[500px]"
+                className={`min-h-[500px] ${errors.content ? 'border-red-500' : ''}`}
                 editing={isEditing}
+              />
+              <ValidationMessage
+                error={submitAttempted ? errors.content : undefined}
+                warning={warnings.content}
               />
             </div>
 
@@ -308,16 +379,19 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
                 Cancel
               </button>
               <button
-                onClick={handleSave}
-                disabled={isSaving || !noteData.title.trim()}
+                onClick={noteId?.id ? handleUpdate : handleSave}
+                disabled={(noteId?.id ? isUpdating : isSaving) || (submitAttempted && !isValid)}
                 className="flex-1 px-4 py-3 bg-gradient-primary hover:opacity-90 text-foreground rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSaving ? 'Saving...' : 'Save Note'}
+                {(noteId?.id ? isUpdating : isSaving)
+                  ? 'Saving...'
+                  : noteId?.id ? 'Update Note' : 'Save Note'
+                }
               </button>
             </div>
           </div>
         </div>
       </div>
-    </div >
+    </div>
   )
 }
