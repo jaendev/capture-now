@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1755023321709,
+      "tag": "0000_dapper_blue_blade",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1755027055568,
+      "tag": "0001_yielding_siren",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1755080960345,
+      "tag": "0002_conscious_sentinels",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1755081370086,
+      "tag": "0003_windy_boom_boom",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1755186640165,
+      "tag": "0004_magenta_nehzno",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1755592432660,
+      "tag": "0005_acoustic_blade",
+      "breakpoints": true
+    }
+  ]
+}

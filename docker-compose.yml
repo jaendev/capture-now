@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: capturenow-postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: capturenow_db
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - capturenow-network
+
+volumes:
+  postgres-data:
+    name: capturenow-postgres-data
+
+networks:
+  capturenow-network:
+    name: capturenow-network

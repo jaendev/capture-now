@@ -6,22 +6,44 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "dotenv -e .env.local -- drizzle-kit generate",
+    "db:migrate": "dotenv -e .env.local -- drizzle-kit migrate",
+    "db:push": "dotenv -e .env.local -- drizzle-kit push",
+    "db:studio": "dotenv -e .env.local -- drizzle-kit studio",
+    "db:check": "dotenv -e .env.local -- drizzle-kit check",
+    "db:pull": "dotenv -e .env.local -- drizzle-kit pull",
+    "db:seed": "dotenv -e .env.local -- tsx src/db/seed.ts",
+    "test:env": "dotenv -e .env.local -- node test-env.mjs"
   },
   "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.1",
+    "drizzle-orm": "^0.44.4",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.539.0",
+    "next": "15.4.6",
+    "pg": "^8.16.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.4.6"
+    "zod": "^4.0.17",
+    "zustand": "^5.0.7"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "4",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
+    "@types/pg": "^8.15.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "4",
-    "tailwindcss": "4",
+    "dotenv-cli": "^10.0.0",
+    "drizzle-kit": "^0.31.4",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "4",
+    "tsx": "^4.20.4",
+    "typescript": "^5"
   }
 }
