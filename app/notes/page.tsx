@@ -23,9 +23,6 @@ export default function ViewNotesPage() {
   const { notes, pagination, loading, error } = useNotes(currentPage, paginationConsts.NOTES_PER_PAGE)
   const { navigateByAction } = useNoteNavigation();
 
-  console.log(notes[0]?.title.length);
-
-
   useEffect(() => {
     setLastVisitedPath(path)
   }, [isAuthenticated, router, setLastVisitedPath, path]);

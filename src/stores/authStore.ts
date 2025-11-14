@@ -78,7 +78,6 @@ export const useAuthStore = create<AuthState>()(
       // Get redirect path after login
       getRedirectPath: () => {
         const lastPath = get().lastVisitedPath
-        console.log('🔍 getRedirectPath - Last visited path:', lastPath);
 
         return lastPath
       },
