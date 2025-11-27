@@ -1,29 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
-import { authenticateJWT } from "@/src/lib/jwt-auth"
 import { updateNoteSchema } from "@/src/lib/validations"
 import { getNoteById, updateNote, deleteNote } from "@/src/db/queries/notes"
-
-/**
- * Context for the route parameters.
- * @property {Object} params - The route parameters.
- * @property {string} params.id - The ID of the note.
- */
-interface RouteContext {
-  params: { id: string }
-}
-
-/**
- * Method to get the authenticated user from the request.
- * @param request - The incoming request object.
- * @returns user - The authenticated user object containing userId.
- */
-async function getAuthenticatedUser(request: NextRequest) {
-  const jwtPayload = await authenticateJWT(request)
-  if (jwtPayload) {
-    return { userId: jwtPayload.userId }
-  }
-  return null
-}
+import { RouteContext } from "@/src/types/api"
+import { getAuthenticatedUser } from "@/src/lib/jwt-auth"
 
 /**
  * Method to handle GET request for a specific note.
@@ -33,7 +12,7 @@ async function getAuthenticatedUser(request: NextRequest) {
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: RouteContext
 ) {
   try {
     const { id } = await params
@@ -66,7 +45,7 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: RouteContext
 ) {
   try {
     const { id } = await params

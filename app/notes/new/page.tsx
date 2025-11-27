@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, ArrowLeft, X, SquarePen, Pen } from 'lucide-react'
+import { Save, ArrowLeft, X, SquarePen, Pen, Archive } from 'lucide-react'
 import BreadCrumb from "@/src/components/layout/BreadCrumb"
 import { MarkdownEditor } from "@/src/components/editor/MarkdownEditor"
 import { ValidationMessage } from "@/src/components/ui/ValidationMessage"
@@ -10,7 +10,7 @@ import { CharacterCounter } from "@/src/components/ui/CharacterCounter"
 import { useTags } from '@/src/hooks/useTags'
 import { useNoteValidation } from '@/src/hooks/useNoteValidation'
 import { CreateNote } from '@/src/types/Note'
-import { createNote, updateNote } from '@/src/services/noteService'
+import { createNote, updateNote, archiveNote } from '@/src/services/noteService'
 import { useNotes } from '@/src/hooks/useNotes'
 import { paginationConsts } from '@/constants/pagination'
 import { notesConstants } from '@/constants/notes'
@@ -34,6 +34,7 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [submitAttempted, setSubmitAttempted] = useState(false)
+  const [isArchiving, setIsArchiving] = useState(false)
 
   const { tags } = useTags()
   const router = useRouter()
@@ -107,6 +108,20 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
     }
   }
 
+  const handleArchive = async () => {
+    if (!note?.id) return
+
+    setIsArchiving(true)
+    try {
+      await archiveNote(note.id)
+      router.push('/notes')
+    } catch (error) {
+      console.error('Error archiving note:', error)
+    } finally {
+      setIsArchiving(false)
+    }
+  }
+
   const handleCancel = () => {
     router.back()
   }
@@ -158,7 +173,7 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
               {/* Save Button */}
               <button
                 onClick={handleSave}
-                disabled={isSaving || (submitAttempted && !isValid)}
+                disabled={isSaving || (submitAttempted && !isValid) || noteData.title.length == 0}
                 className={`flex items-center space-x-2 bg-gradient-primary hover:opacity-90 text-foreground px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
                   ${noteId?.id ? 'hidden' : 'block'}`}
               >
@@ -171,6 +186,26 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
                   <>
                     <Save className="w-4 h-4" />
                     <span>Save note</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={handleArchive}
+                disabled={isEditing || isArchiving}
+                className={`flex items-center space-x-2 bg-card hover:bg-hover border border-border text-foreground px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                  ${!noteId?.id ? 'hidden' : 'block'}`}
+                title={note?.isArchived ? 'Unarchive note' : 'Archive note'}
+              >
+                {isArchiving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground"></div>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Archive className="w-4 h-4" />
+                    <span>{note?.isArchived ? 'Unarchive' : 'Archive'}</span>
                   </>
                 )}
               </button>
@@ -198,6 +233,7 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
               {/* Edit Toggle Button */}
               <button
                 onClick={() => setIsEditing(!isEditing)}
+                disabled={noteData.title.length == 0}
                 className={`flex items-center space-x-2 bg-gradient-primary hover:opacity-90 text-foreground px-4 py-2 rounded-lg font-medium transition-all
                   ${!noteId?.id ? 'hidden' : 'block'}`}
               >

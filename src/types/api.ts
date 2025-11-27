@@ -26,3 +26,12 @@ export interface AuthToken {
   expires_in?: number;
   token_type?: string;
 }
+
+/**
+ * Context for the route parameters.
+ * @property {Object} params - The route parameters.
+ * @property {string} params.id - The ID of the note.
+ */
+export interface RouteContext {
+  params: { id: string }
+}

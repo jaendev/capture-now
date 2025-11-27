@@ -197,7 +197,6 @@ export async function updateNote(
   console.log('update data: ', data);
   const { tagIds } = data
 
-
   const [note] = await db
     .update(notesTable)
     .set({
@@ -253,6 +252,36 @@ export async function getFavoriteNotes(userId: string) {
     .orderBy(desc(notesTable.updatedAt))
 
   return notes
+}
+
+export async function archiveNote(id: string, userId: string) {
+
+  const [existingNote] = await db
+    .select()
+    .from(notesTable)
+    .where(and(
+      eq(notesTable.id, id),
+      eq(notesTable.userId, userId)
+    ))
+    .limit(1)
+
+  if (!existingNote) {
+    return null
+  }
+
+  const [note] = await db
+    .update(notesTable)
+    .set({
+      isArchived: !existingNote.isArchived,
+      updatedAt: new Date()
+    })
+    .where(and(
+      eq(notesTable.id, id),
+      eq(notesTable.userId, userId)
+    ))
+    .returning()
+
+  return note
 }
 
 /**
