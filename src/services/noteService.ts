@@ -6,3 +6,4 @@ export const createNote = (data: CreateNote) => apiClient.post<CreateNote>("/not
 export const getNoteById = (id: string) => apiClient.get<Note>(`/notes/${id}`);
 export const updateNote = (id?: string, data?: Partial<CreateNote>) => apiClient.patch<Note>(`/notes/${id}`, data);
 export const archiveNote = (id?: string) => apiClient.patch<Note>(`/notes/${id}/archive`);
+export const toggleFavoriteNote = (id?: string) => apiClient.patch<Note>(`/notes/${id}/favorite`);

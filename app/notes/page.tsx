@@ -85,9 +85,16 @@ export default function ViewNotesPage() {
                               ⭐ Favorite
                             </span>
                           )}
+
                           {note.isArchived && (
                             <span className="px-2 py-1 bg-gray-500/20 text-gray-500 rounded text-xs">
                               📁 Archived
+                            </span>
+                          )}
+
+                          {!note.isFavorite && !note.isArchived && (
+                            <span className="px-2 py-1 bg-green-500/20 text-green-500 rounded text-xs">
+                              📝 Active
                             </span>
                           )}
                         </div>

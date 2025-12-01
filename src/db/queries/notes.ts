@@ -246,12 +246,41 @@ export async function getFavoriteNotes(userId: string) {
     .from(notesTable)
     .where(and(
       eq(notesTable.userId, userId),
-      eq(notesTable.isFavorite, true),
-      eq(notesTable.isArchived, false)
+      eq(notesTable.isFavorite, true)
     ))
     .orderBy(desc(notesTable.updatedAt))
 
   return notes
+}
+
+export async function toggleFavoriteNote(id: string, userId: string) {
+
+  const [existingNote] = await db
+    .select()
+    .from(notesTable)
+    .where(and(
+      eq(notesTable.id, id),
+      eq(notesTable.userId, userId)
+    ))
+    .limit(1)
+
+  if (!existingNote) {
+    return null
+  }
+
+  const [note] = await db
+    .update(notesTable)
+    .set({
+      isFavorite: !existingNote.isFavorite,
+      updatedAt: new Date()
+    })
+    .where(and(
+      eq(notesTable.id, id),
+      eq(notesTable.userId, userId)
+    ))
+    .returning()
+
+  return note
 }
 
 export async function archiveNote(id: string, userId: string) {

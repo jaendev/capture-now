@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, ArrowLeft, X, SquarePen, Pen, Archive } from 'lucide-react'
+import { Save, ArrowLeft, X, SquarePen, Pen, Archive, BookHeart } from 'lucide-react'
 import BreadCrumb from "@/src/components/layout/BreadCrumb"
 import { MarkdownEditor } from "@/src/components/editor/MarkdownEditor"
 import { ValidationMessage } from "@/src/components/ui/ValidationMessage"
@@ -10,17 +10,19 @@ import { CharacterCounter } from "@/src/components/ui/CharacterCounter"
 import { useTags } from '@/src/hooks/useTags'
 import { useNoteValidation } from '@/src/hooks/useNoteValidation'
 import { CreateNote } from '@/src/types/Note'
-import { createNote, updateNote, archiveNote } from '@/src/services/noteService'
+import { createNote, updateNote, archiveNote, toggleFavoriteNote } from '@/src/services/noteService'
 import { useNotes } from '@/src/hooks/useNotes'
 import { paginationConsts } from '@/constants/pagination'
 import { notesConstants } from '@/constants/notes'
+import { useReload } from '@/src/hooks/useReload'
 
 interface CreateNoteViewProps {
   id?: string
 }
 
 export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
-  const { note } = useNotes(paginationConsts.CURRENT_PAGE, paginationConsts.NOTES_PER_PAGE, noteId?.id)
+  const { note, refetch } = useNotes(paginationConsts.CURRENT_PAGE, paginationConsts.NOTES_PER_PAGE, noteId?.id)
+  const { reload } = useReload()
 
   const [noteData, setNoteData] = useState<CreateNote>({
     title: '',
@@ -32,6 +34,7 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [isFavoriting, setIsFavoriting] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [submitAttempted, setSubmitAttempted] = useState(false)
   const [isArchiving, setIsArchiving] = useState(false)
@@ -114,11 +117,27 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
     setIsArchiving(true)
     try {
       await archiveNote(note.id)
-      router.push('/notes')
+
+      reload(refetch, 500)
     } catch (error) {
       console.error('Error archiving note:', error)
     } finally {
       setIsArchiving(false)
+    }
+  }
+
+  const handleFavourite = async () => {
+    if (!note?.id) return
+
+    setIsFavoriting(true)
+    try {
+      await toggleFavoriteNote(note.id)
+
+      reload(refetch, 500)
+    } catch (error) {
+      console.error('Error archiving note:', error)
+    } finally {
+      setIsFavoriting(false)
     }
   }
 
@@ -206,6 +225,26 @@ export default function CreateEditNoteView(noteId: CreateNoteViewProps) {
                   <>
                     <Archive className="w-4 h-4" />
                     <span>{note?.isArchived ? 'Unarchive' : 'Archive'}</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={handleFavourite}
+                disabled={isEditing || isFavoriting}
+                className={`flex items-center space-x-2 bg-card hover:bg-hover border border-border text-foreground px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                  ${!noteId?.id ? 'hidden' : 'block'}`}
+                title={note?.isFavorite ? 'Unfavorite note' : 'Favorite note'}
+              >
+                {isFavoriting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground"></div>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <BookHeart className="w-4 h-4" />
+                    <span>{note?.isFavorite ? 'Unfavorite' : 'Favorite'}</span>
                   </>
                 )}
               </button>
