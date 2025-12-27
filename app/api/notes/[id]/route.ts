@@ -84,12 +84,14 @@ export async function DELETE(
   { params }: RouteContext
 ) {
   try {
+    const { id } = await params
+
     const user = await getAuthenticatedUser(request)
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const note = await deleteNote(params.id, user.userId)
+    const note = await deleteNote(id, user.userId)
     if (!note) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 })
     }

@@ -29,9 +29,9 @@ export interface AuthToken {
 
 /**
  * Context for the route parameters.
- * @property {Object} params - The route parameters.
+ * @property {Object} params - The route parameters (Promise in Next.js 15+).
  * @property {string} params.id - The ID of the note.
  */
 export interface RouteContext {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }

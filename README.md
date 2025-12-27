@@ -37,7 +37,7 @@ Capture Now is a modern note-taking application designed to help you quickly cap
 ## Tech Stack
 
 ### Frontend
-- **Next.js 15**: React framework with App Router
+- **Next.js 16**: React framework with App Router
 - **React 19**: Latest React features
 - **TypeScript**: Type-safe development
 - **Tailwind CSS 4**: Utility-first styling

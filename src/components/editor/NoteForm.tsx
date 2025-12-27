@@ -115,6 +115,7 @@ export function NoteForm({
         <MarkdownEditor
           value={content}
           onChange={setContent}
+          editing={!isLoading}
           placeholder="Type your note content here...
           You can use markdown formatting:
           # Heading 1
