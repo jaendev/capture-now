@@ -3,7 +3,7 @@ import { Pagination } from '@/src/components/layout/Pagination';
 import { SearchNotesSkeleton } from '@/src/components/skeletons/SearchNotesSkeleton';
 import { useNotes } from '@/src/hooks/useNotes';
 import { useAuthStore } from '@/src/stores/authStore';
-import { Search } from 'lucide-react';
+import { Search, Menu } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { paginationConsts } from '@/constants/pagination';
@@ -11,6 +11,7 @@ import { notesConstants } from '@/constants/notes';
 import { useNoteNavigation } from '@/src/hooks/useNoteNavigation';
 import { getFirstLine } from '@/src/lib/string-utils';
 import { MARKDOWN_CHARS } from '@/constants/markdown';
+import { searchFilterConstants } from '@/constants/searchFilter';
 import { getDate, getTime } from '@/src/lib/date-time';
 
 export default function SearchPage() {
@@ -19,6 +20,8 @@ export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(paginationConsts.CURRENT_PAGE);
   const [cantOfNotes, setCantOfNotes] = useState(paginationConsts.NOTES_PER_PAGE_SEARCH);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState('');
   const router = useRouter()
   const path = usePathname();
   const { setLastVisitedPath } = useAuthStore();
@@ -47,6 +50,7 @@ export default function SearchPage() {
 
   }, [filteredResults, notes]);
 
+
   return (
     <div className="p-4 md:p-6">
       <div className="max-w-4xl mx-auto">
@@ -67,7 +71,46 @@ export default function SearchPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          <button
+            onClick={() => { setMenuOpen(!menuOpen) }}
+            className='text-muted absolute inset-y-0 right-7 md:right-7 flex items-center cursor-pointer hover:text-accent transition-colors'>
+            <Menu className="h-5 w-5 " />
+          </button>
         </div>
+
+        {/* Menu */}
+        {!menuOpen && (
+          <select
+            value={selectedFilter}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSelectedFilter(value);
+
+              switch (Number(value)) {
+                case searchFilterConstants.EMPTY:
+                  break;
+                case searchFilterConstants.FAVOURITES:
+                  break;
+                case searchFilterConstants.ARCHIVE:
+                  break;
+                case searchFilterConstants.RECENT:
+                  break;
+                case searchFilterConstants.TAGS:
+                  break;
+                default:
+                  setSearchQuery('')
+              }
+            }}
+            className="ml-4 w-48 px-2 py-2 bg-card border border-border rounded-lg text-foreground focus:outline-none focus:border-accent transition-colors"
+          >
+            <option value="" disabled>Select a filter</option>
+            <option value={searchFilterConstants.EMPTY}>No filter</option>
+            <option value={searchFilterConstants.FAVOURITES}>Favourite</option>
+            <option value={searchFilterConstants.ARCHIVE}>Archived</option>
+            <option value={searchFilterConstants.RECENT}>Recent</option>
+            <option value={searchFilterConstants.TAGS}>By tags</option>
+          </select>
+        )}
 
         {/* Search Results */}
         <div className="px-4">
