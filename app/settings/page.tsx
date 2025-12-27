@@ -11,9 +11,6 @@ export default function SettingsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // if (!isAuthenticated) {
-    //   router.push("/login")
-    // }
     setLastVisitedPath(path)
   }, [isAuthenticated, router, setLastVisitedPath, path]);
 
@@ -25,7 +22,7 @@ export default function SettingsPage() {
           label: "Auto-save",
           description: "Automatically save notes as you type",
           type: "toggle",
-          enabled: true
+          enabled: false
         },
         {
           label: "Default tags",
