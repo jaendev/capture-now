@@ -1,0 +1,11 @@
+name: Deploy Capture Now
+run-name: ${{ github.actor }} is deploying the web capture now to production 🚀
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy-frontend:
+    uses: ./.github/workflows/deployNextJs.yml
+    secrets: inherit

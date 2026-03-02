@@ -48,3 +48,4 @@ node_modules
 # Database seed files
 **/seed.ts
 /public/uploads/avatars/*
+!/public/uploads/avatars/boy.png
