@@ -30,10 +30,9 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd ${{ secrets.SSH_PATH }}
-            printf "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}\n" > .env.local
-            printf "DATABASE_URL=${{ secrets.DATABASE_URL }}\n" >> .env.local
-            printf "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}\n" >> .env.local
-            printf "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}\n" >> .env.local
+            printf "NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_API_URL }}"\n" > .env.local
+            printf "DATABASE_URL="${{ secrets.DATABASE_URL }}"\n" >> .env.local
+            printf "NEXTAUTH_SECRET="${{ secrets.NEXTAUTH_SECRET }}"\n" >> .env.local
             chmod 600 .env.local
             echo ".env.local created successfully"
         
