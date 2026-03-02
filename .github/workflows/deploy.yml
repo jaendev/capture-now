@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is deploying the web capture now to production ðŸš
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   deploy-frontend:
